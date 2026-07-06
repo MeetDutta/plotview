@@ -1197,7 +1197,9 @@ def api_export_html():
         polygon.sold:hover { fill-opacity: 0.65; stroke-width: 1.5; }
         polygon.reserved { fill: rgba(245, 158, 11, 0.22); stroke: var(--warning); stroke-width: 0.8; }
         polygon.reserved:hover { fill-opacity: 0.65; stroke-width: 1.5; }
-        polygon.selected { stroke-width: 2.0; stroke: #ffffff !important; filter: drop-shadow(0 0 8px var(--primary)); }
+        polygon.selected { stroke-width: 2.0; stroke: #ffffff !important; filter: drop-shadow(0 0 8px var(--primary)); fill-opacity: 0.12 !important; }
+        polygon.selected:hover { fill-opacity: 0.18 !important; }
+        svg:has(polygon.selected) polygon:not(.selected):not(.road):not(.site_boundary):not(.open_space):not(.park):not(.garden):not(.amenity) { opacity: 0.35; }
         polygon.road { fill: rgba(30, 41, 59, 0.75); stroke: rgba(255, 255, 255, 0.06); stroke-width: 0.1; cursor: default; pointer-events: none; }
         polygon.site_boundary { fill: none; stroke: var(--text-muted); stroke-width: 0.15; stroke-dasharray: 0.4 0.4; cursor: default; pointer-events: none; }
         polygon.open_space, polygon.park, polygon.garden { fill: rgba(16, 185, 129, 0.15); stroke: rgba(16, 185, 129, 0.4); stroke-width: 0.1; cursor: default; pointer-events: none; }
@@ -1338,9 +1340,8 @@ def api_export_html():
                 
                 poly.addEventListener('click', () => {
                     // Deselect previous
-                    document.querySelectorAll('polygon').forEach(p => p.setAttribute('stroke-width', '1.5'));
-                    poly.setAttribute('stroke-width', '3');
-                    poly.setAttribute('stroke', '#fff');
+                    document.querySelectorAll('polygon').forEach(p => p.classList.remove('selected'));
+                    poly.classList.add('selected');
                     
                     // Show sidebar details
                     infoPlaceholder.style.display = 'none';

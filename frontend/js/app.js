@@ -1690,24 +1690,42 @@ function renderSVG(tempCursorPos = null) {
         
         svgOverlay.appendChild(polygon);
         
-        // Render plot numbers on center of the plot
+        // Render plot numbers on right top corner (or center for special spaces)
         if (plot.polygon.length > 2 && plot.plot_number) {
-            const center = getPolygonCenter(plot.polygon);
             const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
-            text.setAttribute("x", center.x);
-            text.setAttribute("y", center.y);
-            text.setAttribute("text-anchor", "middle");
-            text.setAttribute("dominant-baseline", "middle");
+            text.setAttribute("class", `plot-label ${plot.id === selectedPlotId ? 'selected' : ''}`);
             
-            // Adjust label style based on standard vs special park plots
-            let font_size = "0.95px";
-            let text_shadow = "0.5px 0.5px 1.5px #000";
+            let x, y;
+            let textAnchor = "end";
+            let dominantBaseline = "hanging";
+            let font_size = "0.75px";
+            let text_shadow = "0.4px 0.4px 1px #000";
+            
             if (plot.plot_number === "Open Space" || plot.plot_number === "Amenity Space") {
+                const center = getPolygonCenter(plot.polygon);
+                x = center.x;
+                y = center.y;
+                textAnchor = "middle";
+                dominantBaseline = "middle";
                 font_size = "1.2px";
                 text_shadow = "none";
+            } else {
+                let maxX = -Infinity;
+                let minY = Infinity;
+                plot.polygon.forEach(pt => {
+                    if (pt[0] > maxX) maxX = pt[0];
+                    if (pt[1] < minY) minY = pt[1];
+                });
+                x = maxX - 0.7;
+                y = minY + 0.7;
             }
             
-            text.setAttribute("style", `fill: #fff; font-size: ${font_size}; font-weight: 700; pointer-events: none; text-shadow: ${text_shadow}; letter-spacing: -0.05px;`);
+            text.setAttribute("x", x);
+            text.setAttribute("y", y);
+            text.setAttribute("text-anchor", textAnchor);
+            text.setAttribute("dominant-baseline", dominantBaseline);
+            
+            text.setAttribute("style", `fill: #fff; font-size: ${font_size}; font-weight: 700; pointer-events: none; text-shadow: ${text_shadow}; letter-spacing: -0.05px; transition: opacity 0.25s ease;`);
             text.textContent = plot.plot_number;
             svgOverlay.appendChild(text);
         }
