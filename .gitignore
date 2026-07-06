@@ -1,0 +1,30 @@
+# Virtual environment
+venv/
+.venv/
+env/
+ENV/
+
+# Database
+database.db
+*.db
+*.sqlite3
+
+# Uploads and temporary assets
+uploads/*
+!uploads/.gitkeep
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+
+# Environment files
+.env
+.env.local
+.env.*
+
+# OS specific files
+.DS_Store
+Thumbs.db

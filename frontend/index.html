@@ -1,0 +1,845 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Real Estate Map Digitizer</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Stylesheet -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <!-- 0. Login View Screen -->
+    <div id="login-view" class="view-container" style="display: flex; align-items: center; justify-content: center; background: radial-gradient(circle at 60% 10%, rgba(30, 27, 75, 0.4) 0%, rgba(15, 23, 42, 0) 100%), radial-gradient(circle at center, #0b0f19 0%, #030712 100%); position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1000; gap: 1rem;">
+        <!-- Sign In Card -->
+        <div class="login-card" id="signin-card" style="background: rgba(15, 23, 42, 0.55); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 20px; padding: 3rem; width: 100%; max-width: 440px; backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); box-shadow: 0 30px 60px rgba(0,0,0,0.6); display: flex; flex-direction: column; gap: 1.8rem; border-top: 1px solid rgba(255,255,255,0.15);">
+            <div style="text-align: center;">
+                <h1 style="font-size: 2rem; font-weight: 800; color: #fff; margin-bottom: 0.5rem; letter-spacing: -0.5px;"><i class="fa-solid fa-map-location-dot" style="color: var(--primary); margin-right: 4px;"></i> PLOT<span>DIGITIZER</span></h1>
+                <p style="font-size: 0.825rem; color: var(--text-muted); font-weight: 500;">Real Estate Interactive Layout Mapper</p>
+            </div>
+            
+            <div id="login-error-msg" style="display: none; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.2); border-radius: 10px; padding: 0.75rem 1rem; font-size: 0.785rem; color: #f87171; align-items: center; gap: 0.6rem;">
+                <i class="fa-solid fa-circle-exclamation"></i>
+                <span id="login-error-text">Invalid credentials</span>
+            </div>
+
+            <div class="form-group" style="margin: 0;">
+                <label for="login-username" style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;">Username</label>
+                <input type="text" id="login-username" class="form-control" placeholder="Enter username" style="height: 44px;">
+            </div>
+
+            <div class="form-group" style="margin: 0;">
+                <label for="login-password" style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;">Password</label>
+                <input type="password" id="login-password" class="form-control" placeholder="Enter password" style="height: 44px;">
+            </div>
+
+            <button class="btn btn-primary" id="login-submit-btn" style="height: 46px; font-weight: 700; font-size: 0.95rem; margin-top: 0.5rem; display: flex; justify-content: center; align-items: center; gap: 0.6rem; border-radius: 10px;">
+                <i class="fa-solid fa-right-to-bracket"></i> Sign In to Dashboard
+            </button>
+            
+            <div style="text-align: center; margin-top: 0.25rem; font-size: 0.85rem;">
+                <span style="color: var(--text-muted);">Real Estate Agent?</span>
+                <a href="#" id="toggle-signup-btn" style="color: var(--primary); font-weight: 700; text-decoration: none; margin-left: 0.4rem; transition: color 0.2s;" onmouseover="this.style.color='var(--primary-hover)'" onmouseout="this.style.color='var(--primary)'">Request Agent Account</a>
+            </div>
+        </div>
+
+        <!-- Request Agent Account Card -->
+        <div id="signup-card" style="display: none; background: rgba(15, 23, 42, 0.55); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 20px; padding: 3rem; width: 100%; max-width: 440px; backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); box-shadow: 0 30px 60px rgba(0,0,0,0.6); flex-direction: column; gap: 1.5rem; border-top: 1px solid rgba(255,255,255,0.15);">
+            <div style="text-align: center;">
+                <h1 style="font-size: 2rem; font-weight: 800; color: #fff; margin-bottom: 0.5rem; letter-spacing: -0.5px;"><i class="fa-solid fa-user-plus" style="color: var(--primary); margin-right: 4px;"></i> ACCESS REQUEST</h1>
+                <p style="font-size: 0.825rem; color: var(--text-muted); font-weight: 500;">Request an agent profile from system administrator</p>
+            </div>
+            
+            <div id="signup-msg" style="display: none; border-radius: 10px; padding: 0.75rem 1rem; font-size: 0.785rem; align-items: center; gap: 0.6rem;">
+                <i class="fa-solid id-icon"></i>
+                <span id="signup-msg-text"></span>
+            </div>
+
+            <div class="form-group" style="margin: 0;">
+                <label for="signup-name" style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;">Full Name</label>
+                <input type="text" id="signup-name" class="form-control" placeholder="Enter your full name" style="height: 44px;">
+            </div>
+
+            <div class="form-group" style="margin: 0;">
+                <label for="signup-username" style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;">Requested Username</label>
+                <input type="text" id="signup-username" class="form-control" placeholder="Enter username" style="height: 44px;">
+            </div>
+
+            <div class="form-group" style="margin: 0;">
+                <label for="signup-password" style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;">Password</label>
+                <input type="password" id="signup-password" class="form-control" placeholder="Choose password" style="height: 44px;">
+            </div>
+
+            <button class="btn btn-primary" id="signup-submit-btn" style="height: 46px; font-weight: 700; font-size: 0.95rem; margin-top: 0.5rem; display: flex; justify-content: center; align-items: center; gap: 0.6rem; border-radius: 10px;">
+                <i class="fa-solid fa-paper-plane"></i> Submit Access Request
+            </button>
+
+            <div style="text-align: center; font-size: 0.85rem; margin-top: 0.25rem;">
+                <a href="#" id="toggle-signin-btn" style="color: var(--text-muted); text-decoration: none; font-weight: 700; transition: color 0.2s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='var(--text-muted)'">Back to Sign In</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- 1. Catalog Home Page View -->
+    <div id="home-view" class="view-container" style="display: none;">
+        <header style="background: rgba(15, 23, 42, 0.4); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);">
+            <div class="logo-section">
+                <h1><i class="fa-solid fa-map-location-dot" style="color: var(--primary);"></i> PLOT<span>DIGITIZER HUB</span></h1>
+            </div>
+            <div style="display: flex; gap: 0.85rem; align-items: center;">
+                <!-- Help button -->
+                <button class="btn btn-secondary" id="home-help-btn" style="padding: 0.5rem 1rem; font-size: 0.8rem; font-weight: 700;" title="User Guide">
+                    <i class="fa-solid fa-circle-question" style="color: var(--primary);"></i> User Guide
+                </button>
+                <!-- Theme selection -->
+                <div style="display: flex; align-items: center; gap: 0.5rem; background: rgba(0,0,0,0.3); padding: 6px 12px; border-radius: 10px; border: 1px solid var(--border-color);">
+                    <i class="fa-solid fa-palette" style="color: var(--primary); font-size: 0.8rem;"></i>
+                    <select class="theme-selector" style="background: transparent; color: var(--text-color); border: none; font-size: 0.8rem; font-weight: 700; outline: none; cursor: pointer; font-family: inherit;">
+                        <option value="slate">Slate Night</option>
+                        <option value="emerald">Emerald Forest</option>
+                        <option value="amethyst">Midnight Amethyst</option>
+                        <option value="amber">Solar Amber</option>
+                        <option value="frost">Nordic Frost</option>
+                    </select>
+                </div>
+                <button class="btn btn-primary admin-only" id="home-create-btn" style="display: none; padding: 0.5rem 1rem; font-size: 0.8rem;">
+                    <i class="fa-solid fa-plus"></i> Create New Plan
+                </button>
+                <button class="btn btn-secondary admin-only" id="home-users-btn" style="display: none; padding: 0.5rem 1rem; font-size: 0.8rem; font-weight: 700;">
+                    <i class="fa-solid fa-users-gear" style="color: var(--primary);"></i> Manage Agents
+                </button>
+                
+                <!-- Profile Indicator Card -->
+                <div style="display: flex; align-items: center; gap: 0.5rem; background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); padding: 5px 12px; border-radius: 10px;">
+                    <i class="fa-solid fa-user-tie" style="color: var(--primary); font-size: 0.85rem;"></i>
+                    <span style="font-size: 0.8rem; color: #fff; font-weight: 700;" id="home-user-name">Loading Profile...</span>
+                </div>
+                
+                <button class="btn btn-secondary" id="logout-btn" style="padding: 0.5rem 1rem; font-size: 0.8rem; font-weight: 700;">
+                    <i class="fa-solid fa-right-from-bracket" style="color: var(--danger);"></i> Logout
+                </button>
+            </div>
+        </header>
+
+        
+        <div class="home-hero">
+            <h2>Real Estate Project Catalog</h2>
+            <p>Manage site layout plans, digitize parcel boundaries using Gemini AI spatial extraction, log reservations, and export fully interactive HTML blueprints.</p>
+        </div>
+        
+        <div class="home-search-container">
+            <div class="home-search-bar">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" id="project-search" placeholder="Search real estate layout plans by name...">
+            </div>
+        </div>
+        
+        <div class="project-grid" id="project-grid">
+            <!-- Project cards will render here dynamically -->
+        </div>
+    </div>
+
+    <!-- 2. Interactive Map Editor View -->
+    <div id="editor-view" class="view-container" style="display: none;">
+        <header>
+            <div class="logo-section" style="display: flex; gap: 1rem; align-items: center;">
+                <button class="btn btn-secondary" id="back-to-home-btn" style="padding: 0.45rem 0.9rem; font-size: 0.8rem; display: flex; gap: 0.4rem; align-items: center; font-weight: 600;">
+                    <i class="fa-solid fa-arrow-left-long"></i> Back to Hub
+                </button>
+                <h1 style="font-size: 1.2rem; border-left: 1px solid var(--border); padding-left: 1rem; margin-left: 0; display: flex; align-items: center; gap: 0.5rem;">
+                    <i class="fa-solid fa-map" style="color: var(--primary);"></i> 
+                    <span id="active-project-title">Loading Plan...</span>
+                    <button class="btn btn-secondary admin-only" id="rename-project-btn" style="display: none; padding: 2px 6px; font-size: 0.75rem; background: transparent; border: none; cursor: pointer; color: var(--text-muted); margin-left: 4px;" title="Rename Layout Plan">
+                        <i class="fa-solid fa-pen"></i>
+                    </button>
+                </h1>
+            </div>
+            <div style="display: flex; gap: 1rem; align-items: center;">
+                <!-- Help button -->
+                <button class="btn btn-secondary" id="editor-help-btn" style="padding: 0.45rem 0.9rem; font-size: 0.8rem; font-weight: 600;" title="User Guide">
+                    <i class="fa-solid fa-circle-question"></i> Help
+                </button>
+                <!-- Theme selection -->
+                <div style="display: flex; align-items: center; gap: 0.4rem; background: rgba(0,0,0,0.25); padding: 5px 8px; border-radius: 8px; border: 1px solid var(--border-color);">
+                    <i class="fa-solid fa-palette" style="color: var(--primary); font-size: 0.8rem;"></i>
+                    <select class="theme-selector" style="background: transparent; color: var(--text-color); border: none; font-size: 0.75rem; font-weight: 600; outline: none; cursor: pointer;">
+                        <option value="slate">Slate Night</option>
+                        <option value="emerald">Emerald Forest</option>
+                        <option value="amethyst">Midnight Amethyst</option>
+                        <option value="amber">Solar Amber</option>
+                        <option value="frost">Nordic Frost</option>
+                    </select>
+                </div>
+                <span style="font-size: 0.8rem; color: var(--text-muted); font-weight: 600; border-right: 1px solid var(--border-color); padding-right: 0.75rem;" id="editor-user-name">Loading Profile...</span>
+                
+                <!-- Admin specific button for User Account Management -->
+                <button class="btn btn-secondary admin-only" id="admin-users-btn" style="display: none; padding: 0.45rem 0.9rem; font-size: 0.8rem; font-weight: 600;">
+                    <i class="fa-solid fa-users-gear"></i> Manage Agents
+                </button>
+                
+                <button class="btn btn-secondary" id="logout-btn-editor" style="padding: 0.45rem 0.9rem; font-size: 0.8rem; font-weight: 600;">
+                    <i class="fa-solid fa-right-from-bracket"></i> Logout
+                </button>
+                
+                <div class="api-status">
+                    <span class="status-dot" id="api-status-dot"></span>
+                    <span id="api-status-text">Gemini AI Offline</span>
+                </div>
+            </div>
+        </header>
+
+        <div class="app-container">
+            
+            <!-- Left Panel: Controls & Configurations -->
+            <div class="panel left-panel" style="overflow-y: auto; padding: 1rem;">
+                
+                <!-- Admin specific sidebar modules -->
+                <div id="admin-controls-wrapper" class="admin-only" style="display: none; flex-direction: column; gap: 1.25rem;">
+                    <!-- Upload Area -->
+                    <div>
+                        <div class="section-title">Upload Map Image</div>
+                        <div class="upload-area" id="upload-zone">
+                            <i class="fa-solid fa-cloud-arrow-up upload-icon"></i>
+                            <div style="font-size: 0.85rem; font-weight: 600;">Drag & Drop map image</div>
+                            <div style="font-size: 0.7rem; color: var(--text-muted);">Supports PNG, JPG, JPEG</div>
+                            <input type="file" id="file-input" accept="image/*" style="display: none;">
+                        </div>
+                        <div class="card" id="file-info-card" style="display: none; margin-top: 0.5rem; padding: 0.6rem 0.8rem; font-size: 0.75rem;">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <span style="font-weight: 600; text-overflow: ellipsis; overflow: hidden; white-space: nowrap; max-width: 180px;" id="file-info-name">layout.jpg</span>
+                                <button class="btn btn-secondary" id="remove-file-btn" style="padding: 2px 6px; font-size: 0.65rem;"><i class="fa-solid fa-trash"></i></button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Upload CSV Area -->
+                    <div>
+                        <div class="section-title">Upload CSV Plot Data</div>
+                        <div class="upload-area" id="csv-upload-zone">
+                            <i class="fa-solid fa-file-csv upload-icon"></i>
+                            <div style="font-size: 0.85rem; font-weight: 600;">Drag & Drop or Click CSV</div>
+                            <div style="font-size: 0.7rem; color: var(--text-muted);">Columns: plot_number, size, area</div>
+                            <input type="file" id="csv-file-input" accept=".csv" style="display: none;">
+                        </div>
+                        <div class="card" id="csv-file-info-card" style="display: none; margin-top: 0.5rem; padding: 0.6rem 0.8rem; font-size: 0.75rem;">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <span style="font-weight: 600; text-overflow: ellipsis; overflow: hidden; white-space: nowrap; max-width: 180px;" id="csv-file-info-name">plots.csv</span>
+                                <button class="btn btn-secondary" id="remove-csv-file-btn" style="padding: 2px 6px; font-size: 0.65rem;"><i class="fa-solid fa-trash"></i></button>
+                            </div>
+                        </div>
+                    </div>
+
+
+
+                    <!-- Map Digitization Mode -->
+                    <div>
+                        <div class="section-title">Extraction Mode</div>
+                        <div class="card">
+                            <button class="btn btn-primary" id="run-ai-btn" style="width: 100%;" disabled>
+                                <i class="fa-solid fa-wand-magic-sparkles"></i> AI Mode (Gemini)
+                            </button>
+                            <button class="btn btn-secondary" id="run-cv-btn" style="width: 100%;" disabled>
+                                <i class="fa-solid fa-circle-nodes"></i> Local CV Mode
+                            </button>
+                            <div style="font-size: 0.65rem; color: var(--text-muted); line-height: 1.3;">
+                                * AI Mode detects plot shapes and reads their numbers & size labels. Local CV Mode detects plot boundary vectors offline.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Editor Tools -->
+                    <div>
+                        <div class="section-title">Interactive Canvas Tools</div>
+                        <div class="tools-grid">
+                            <button class="btn btn-secondary tool-btn active" id="tool-select" title="Select & Inspect Plot">
+                                <i class="fa-solid fa-mouse-pointer"></i> Select
+                            </button>
+                            <button class="btn btn-secondary tool-btn" id="tool-draw" title="Draw Custom Plot Boundaries">
+                                <i class="fa-solid fa-draw-polygon"></i> Draw
+                            </button>
+                            <button class="btn btn-secondary tool-btn" id="tool-edit" title="Adjust Corner Vertices">
+                                <i class="fa-solid fa-arrows-up-down-left-right"></i> Adjust
+                            </button>
+                            <button class="btn btn-secondary tool-btn" id="tool-delete" title="Delete Plot Area">
+                                <i class="fa-solid fa-eraser"></i> Delete
+                            </button>
+                        </div>
+                        <button class="btn btn-secondary" id="add-plot-btn" style="width: 100%; margin-top: 0.65rem; background: rgba(79, 70, 229, 0.1); border: 1px dashed var(--primary); color: #fff;">
+                            <i class="fa-solid fa-plus"></i> Add Plot Manually
+                        </button>
+                    </div>
+
+                    <!-- Export Utilities -->
+                    <div>
+                        <div class="section-title">Export Interactive Map</div>
+                        <button class="btn btn-primary" id="export-html-btn" style="width: 100%;">
+                            <i class="fa-solid fa-file-export"></i> Export Standalone HTML Map
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Agent specific Dashboard sidebar -->
+                <div id="agent-dashboard-wrapper" class="agent-only" style="display: none; flex-direction: column; gap: 1.25rem;">
+                    <div>
+                        <div class="section-title">Agent Dashboard</div>
+                        <div style="display: grid; grid-template-columns: 1fr; gap: 0.65rem; margin-top: 0.5rem;">
+                            <!-- Active Bookings Count -->
+                            <div class="card" style="padding: 0.85rem; display: flex; align-items: center; gap: 1rem; border-left: 3px solid var(--warning);">
+                                <div style="font-size: 1.5rem; color: var(--warning);"><i class="fa-solid fa-handshake"></i></div>
+                                <div>
+                                    <div style="font-size: 1.25rem; font-weight: 800;" id="dash-active-reservations">0</div>
+                                    <div style="font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em;">My Reservations</div>
+                                </div>
+                            </div>
+                            <!-- Closed Sales Count -->
+                            <div class="card" style="padding: 0.85rem; display: flex; align-items: center; gap: 1rem; border-left: 3px solid var(--danger);">
+                                <div style="font-size: 1.5rem; color: var(--danger);"><i class="fa-solid fa-file-signature"></i></div>
+                                <div>
+                                    <div style="font-size: 1.25rem; font-weight: 800;" id="dash-closed-sales">0</div>
+                                    <div style="font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em;">My Closed Sales</div>
+                                </div>
+                            </div>
+                            <!-- Token Values Accumulator -->
+                            <div class="card" style="padding: 0.85rem; display: flex; align-items: center; gap: 1rem; border-left: 3px solid var(--primary);">
+                                <div style="font-size: 1.5rem; color: var(--primary);"><i class="fa-solid fa-wallet"></i></div>
+                                <div>
+                                    <div style="font-size: 1.25rem; font-weight: 800;" id="dash-token-volume">₹0</div>
+                                    <div style="font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em;">Total Token Value</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- List of current agent reservations -->
+                    <div>
+                        <div class="section-title">My Bookings</div>
+                        <div class="card" style="padding: 0.5rem; max-height: 240px; overflow-y: auto;">
+                            <ul id="agent-reservations-list" style="list-style: none; display: flex; flex-direction: column; gap: 0.4rem; padding: 0; margin: 0;">
+                                <!-- Filled dynamically in JS -->
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Middle Panel: Canvas Viewport -->
+            <div class="viewport-panel pan-mode" id="viewport" tabindex="0">
+                
+                <!-- Legend overlay -->
+                <div class="legend">
+                    <div class="legend-item">
+                        <span class="legend-color legend-available"></span>
+                        Available
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-color legend-reserved-by-me"></span>
+                        Reserved by you
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-color legend-reserved-by-other"></span>
+                        Reserved by other
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-color legend-sold"></span>
+                        Sold
+                    </div>
+                </div>
+
+                <!-- Zoom Controls -->
+                <div class="zoom-widget">
+                    <button class="zoom-btn" id="zoom-in-btn" title="Zoom In"><i class="fa-solid fa-plus"></i></button>
+                    <button class="zoom-btn" id="zoom-out-btn" title="Zoom Out"><i class="fa-solid fa-minus"></i></button>
+                    <button class="zoom-btn" id="zoom-reset-btn" title="Reset View"><i class="fa-solid fa-rotate-right"></i></button>
+                </div>
+
+                <!-- Canvas SVG Container -->
+                <div class="canvas-container" id="canvas-container">
+                    <img id="map-image" class="canvas-image" alt="" style="display: none; width: 100%; height: 100%; object-fit: fill; pointer-events: none; opacity: 0.6;">
+                    <svg class="canvas-svg" id="svg-overlay" viewBox="0 0 100 100" preserveAspectRatio="none">
+                        <!-- Vector plots and roads render dynamically here -->
+                    </svg>
+                </div>
+            </div>
+
+
+            <!-- Right Panel: Data Explorer -->
+            <div class="panel right-panel">
+                
+                <!-- Toggle list vs edit details pane -->
+                <div style="display: flex; gap: 0.5rem; margin-bottom: 0.8rem; border-bottom: 1px solid var(--border); padding-bottom: 0.8rem;">
+                    <button class="btn btn-secondary active" id="tab-list-btn" style="flex: 1; font-size: 0.8rem; padding: 0.4rem;">
+                        <i class="fa-solid fa-list-ul"></i> Directory
+                    </button>
+                    <button class="btn btn-secondary" id="tab-edit-btn" style="flex: 1; font-size: 0.8rem; padding: 0.4rem;">
+                        <i class="fa-solid fa-sliders"></i> Details
+                    </button>
+                    <button class="btn btn-secondary admin-only" id="tab-analytics-btn" style="display: none; flex: 1; font-size: 0.8rem; padding: 0.4rem;">
+                        <i class="fa-solid fa-chart-line"></i> Analytics
+                    </button>
+                </div>
+
+                <!-- Tab 1: List and search plots -->
+                <div id="tab-list" class="tab-pane active" style="height: calc(100% - 3.5rem); display: flex; flex-direction: column;">
+                    
+                    <div class="search-box">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                        <input type="text" id="search-plots" placeholder="Search by plot number...">
+                    </div>
+
+                    <!-- Availability Summary Bar -->
+                    <div class="stats-row" style="margin-bottom: 0.8rem;">
+                        <div class="stat-card">
+                            <div class="stat-value" id="stat-total">0</div>
+                            <div class="stat-lbl">Total</div>
+                        </div>
+                        <div class="stat-card" style="border-left: 2px solid var(--success);">
+                            <div class="stat-value text-success" id="stat-available">0</div>
+                            <div class="stat-lbl">Avail</div>
+                        </div>
+                        <div class="stat-card" style="border-left: 2px solid var(--danger);">
+                            <div class="stat-value text-danger" id="stat-sold">0</div>
+                            <div class="stat-lbl">Sold</div>
+                        </div>
+                    </div>
+
+                    <div style="flex: 1; overflow-y: auto;">
+                        <ul class="plots-list" id="plots-list">
+                            <!-- Interactive list elements -->
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Tab 2: Single plot property sheet editor -->
+                <div id="tab-edit" class="tab-pane" style="height: calc(100% - 3.5rem); overflow-y: auto;">
+                    
+                    <div id="edit-pane-content" style="display: none; flex-direction: column; gap: 1rem;">
+                        
+                        <!-- Beautiful Read-Only Plot Specification Sheet -->
+                        <div class="plot-info-card">
+                            <div class="card-header-row">
+                                <h4>Plot <span id="info-number">N/A</span></h4>
+                                <span class="status-badge" id="info-status-badge">Available</span>
+                            </div>
+                            
+                            <div id="info-no-boundary-msg" style="display: none; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.2); border-radius: 8px; padding: 0.5rem 0.8rem; font-size: 0.725rem; color: #f87171; align-items: center; gap: 0.5rem; margin-top: 0.5rem;">
+                                <i class="fa-solid fa-triangle-exclamation"></i>
+                                <span>No map boundaries mapped yet. Use the Draw tool while this plot is selected!</span>
+                            </div>
+                            
+                            <div class="info-grid">
+                                <div class="info-item">
+                                    <i class="fa-solid fa-arrows-left-right"></i>
+                                    <div>
+                                        <span class="label">Dimensions (Size)</span>
+                                        <span class="val" id="info-size">N/A</span>
+                                    </div>
+                                </div>
+                                <div class="info-item">
+                                    <i class="fa-solid fa-expand"></i>
+                                    <div>
+                                        <span class="label">Plot Area</span>
+                                        <span class="val" id="info-area">N/A</span>
+                                    </div>
+                                </div>
+                                <div class="info-item">
+                                    <i class="fa-solid fa-wallet"></i>
+                                    <div>
+                                        <span class="label">Price Details</span>
+                                        <span class="val" id="info-price">N/A</span>
+                                    </div>
+                                </div>
+                                <div class="info-item" id="info-reservation-row" style="display: none; background: rgba(249, 115, 22, 0.1); border-color: rgba(249, 115, 22, 0.2);">
+                                    <i class="fa-solid fa-handshake" style="color: var(--warning);"></i>
+                                    <div>
+                                        <span class="label">Reservation Token Details</span>
+                                        <span class="val" id="info-reservation-val">N/A</span>
+                                    </div>
+                                </div>
+                                <div class="info-item" id="info-contract-row" style="display: none; background: rgba(239, 68, 68, 0.1); border-color: rgba(239, 68, 68, 0.2);">
+                                    <i class="fa-solid fa-file-signature" style="color: var(--danger);"></i>
+                                    <div>
+                                        <span class="label">Signed Contract Ref</span>
+                                        <span class="val" id="info-contract-val">N/A</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="info-notes-box">
+                                <span class="label">Notes / Description</span>
+                                <p id="info-notes">No description provided.</p>
+                            </div>
+                        </div>
+
+                        <button class="btn btn-secondary" id="print-receipt-btn" style="display: none; width: 100%; padding: 0.55rem; font-size: 0.75rem; font-weight: 700; align-items: center; justify-content: center; gap: 0.4rem; background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.2); color: #60a5fa; margin-top: 0.8rem;">
+                             <i class="fa-solid fa-file-pdf"></i> Generate Booking Receipt / PDF
+                        </button>
+
+                        <!-- Agent Reservation Action Form (Visible to Agents on Available Plots) -->
+                        <div id="agent-reservation-box" class="agent-only" style="display: none; flex-direction: column; gap: 1rem; margin-top: 0.5rem; background: rgba(255,255,255,0.02); padding: 1rem; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05);">
+                            <div style="font-size: 0.8rem; font-weight: 700; color: var(--warning); text-transform: uppercase; letter-spacing: 0.05em;"><i class="fa-solid fa-handshake"></i> Reserve Plot</div>
+                            <div class="form-group" style="margin: 0;">
+                                <label style="font-size: 0.7rem;">Buyer Name</label>
+                                <input type="text" id="agent-buyer-name" class="form-control" placeholder="e.g. Alice Cooper" style="height: 36px; font-size: 0.8rem;">
+                            </div>
+                            <div class="form-group" style="margin: 0;">
+                                <label style="font-size: 0.7rem;">Token Amount Paid (₹)</label>
+                                <input type="text" id="agent-token-amount" class="form-control" placeholder="e.g. 5,000" style="height: 36px; font-size: 0.8rem;">
+                            </div>
+                            <button class="btn btn-primary" id="agent-confirm-res-btn" style="padding: 0.6rem; font-size: 0.8rem; font-weight: 700;">
+                                <i class="fa-solid fa-circle-check"></i> Submit Reservation
+                            </button>
+                        </div>
+
+                        <!-- Toggle buttons for Admin -->
+                        <button class="btn btn-secondary admin-only" id="toggle-editor-btn" style="display: none; width: 100%; padding: 0.5rem; font-size: 0.75rem; font-weight: 600; align-items: center; justify-content: center; gap: 0.4rem; background: rgba(255,255,255,0.03);">
+                            <i class="fa-solid fa-pen-to-square"></i> Edit Plot Specifications
+                        </button>
+                        <button class="btn btn-secondary admin-only" id="toggle-status-btn" style="display: none; width: 100%; padding: 0.5rem; font-size: 0.75rem; font-weight: 600; align-items: center; justify-content: center; gap: 0.4rem; background: rgba(255,255,255,0.03); margin-top: 0.5rem;">
+                            <i class="fa-solid fa-sliders"></i> Change Plot Status
+                        </button>
+                        
+                        <!-- Delete Plot Button (Admin only) -->
+                        <button class="btn btn-secondary admin-only" id="delete-plot-btn" style="display: none; width: 100%; padding: 0.5rem; font-size: 0.75rem; font-weight: 600; align-items: center; justify-content: center; gap: 0.4rem; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.2); color: #f87171; margin-top: 0.5rem;" onmouseover="this.style.background='rgba(239, 68, 68, 0.2)'" onmouseout="this.style.background='rgba(239, 68, 68, 0.1)'">
+                            <i class="fa-solid fa-trash-can"></i> Delete Plot Completely
+                        </button>
+
+                        <!-- Status Edit Form (Collapsed by default, Admin only) -->
+                        <div id="plot-status-fields" class="admin-only" style="display: none; flex-direction: column; gap: 0.8rem; border-top: 1px solid var(--border-color); padding-top: 1rem; margin-top: 0.5rem;">
+                            <div style="font-size: 0.75rem; font-weight: 600; color: var(--primary); margin-bottom: 0.25rem;">Modify Plot Status</div>
+                            
+                            <div class="form-group">
+                                <label for="edit-status">Status</label>
+                                <select id="edit-status" class="form-control" style="background-color: var(--bg-color); color: var(--text-color); border: 1px solid var(--border-color); border-radius: 8px; height: 38px; font-size: 0.85rem;">
+                                    <option value="available">Available (Green)</option>
+                                    <option value="reserved">Reserved (Orange)</option>
+                                    <option id="opt-sold" value="sold">Sold (Red)</option>
+                                </select>
+                            </div>
+
+                            <!-- Reservation Details (Shown conditionally if status is reserved or sold) -->
+                            <div id="status-reservation-group" style="display: none; flex-direction: column; gap: 0.8rem;">
+                                <div class="form-group">
+                                    <label for="edit-buyer-name">Buyer Name</label>
+                                    <input type="text" id="edit-buyer-name" class="form-control" placeholder="e.g. Alice Cooper">
+                                </div>
+                                <div class="form-group">
+                                    <label for="edit-token-amount">Token Amount Paid (₹)</label>
+                                    <input type="text" id="edit-token-amount" class="form-control" placeholder="e.g. 5,000">
+                                </div>
+                            </div>
+
+                            <!-- Sale Details (Shown conditionally if status is sold) -->
+                            <div id="status-sale-group" style="display: none; flex-direction: column; gap: 0.8rem;">
+                                <div class="form-group">
+                                    <label for="edit-contract-ref">Contract Reference Number</label>
+                                    <input type="text" id="edit-contract-ref" class="form-control" placeholder="e.g. CNTR-90210">
+                                </div>
+                            </div>
+                            
+                            <button class="btn btn-primary" id="save-status-btn" style="padding: 0.5rem 0.75rem; font-size: 0.8rem; font-weight: 700; margin-top: 0.5rem;">
+                                <i class="fa-solid fa-floppy-disk"></i> Apply Status Change
+                            </button>
+                        </div>
+
+                        <!-- Edit Form (Collapsed by default, Admin only) -->
+                        <div id="plot-edit-fields" class="admin-only" style="display: none; flex-direction: column; gap: 0.8rem; border-top: 1px solid var(--border-color); padding-top: 1rem; margin-top: 0.5rem;">
+                            <div style="font-size: 0.75rem; font-weight: 600; color: var(--primary); margin-bottom: 0.25rem;">Modify Specifications</div>
+                            
+                            <div class="form-group">
+                                <label for="edit-number">Plot Number</label>
+                                <input type="text" id="edit-number" class="form-control">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="edit-size">Dimensions (Size)</label>
+                                <input type="text" id="edit-size" class="form-control" placeholder="e.g. 30 x 40 or 9.14x18.28">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="edit-area">Area (Sq Ft / Sq Mt)</label>
+                                <input type="text" id="edit-area" class="form-control" placeholder="e.g. 1200 SQFT">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="edit-price">Price Info</label>
+                                <input type="text" id="edit-price" class="form-control" placeholder="e.g. ₹45,000 or 650/sqft">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="edit-notes">Developer Notes</label>
+                                <textarea id="edit-notes" class="form-control" rows="3" placeholder="Additional details..." style="resize: none; font-family: inherit;"></textarea>
+                            </div>
+                            
+                            <div class="card" style="padding: 0.75rem; font-size: 0.75rem; color: var(--text-muted); line-height: 1.4; margin-top: 0.5rem;">
+                                <div><i class="fa-solid fa-circle-info" style="color: var(--primary);"></i> <strong>Tip:</strong> You can select the <strong>Adjust</strong> canvas tool to drag and resize this plot's corners on the map image.</div>
+                            </div>
+                            
+                            <button class="btn btn-primary" id="save-specs-btn" style="padding: 0.5rem 0.75rem; font-size: 0.8rem; font-weight: 700; margin-top: 0.5rem;">
+                                <i class="fa-solid fa-floppy-disk"></i> Apply Specifications
+                            </button>
+                        </div>
+
+                    </div>
+
+
+                    <!-- Placeholder when no plot is selected (Quick Start Guide) -->
+                    <div class="no-selection" id="edit-pane-placeholder" style="padding: 1.8rem; text-align: left; align-items: flex-start; justify-content: flex-start; overflow-y: auto; display: flex; flex-direction: column; background: rgba(255, 255, 255, 0.01); border: 1px solid var(--border-color); border-radius: 14px;">
+                        <div style="width: 100%; text-align: center; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem;">
+                            <i class="fa-solid fa-map-location-dot" style="font-size: 2.5rem; color: var(--primary); margin-bottom: 0.6rem; display: block; filter: drop-shadow(0 4px 10px var(--primary-glow));"></i>
+                            <h3 style="font-size: 1.1rem; font-weight: 800; color: #fff; letter-spacing: -0.2px;">Quick Start Guide</h3>
+                            <p style="font-size: 0.785rem; color: var(--text-muted); margin-top: 2px;">Steps to map and manage your layout boundaries</p>
+                        </div>
+                        
+                        <div style="display: flex; flex-direction: column; gap: 1.1rem; width: 100%;">
+                            <div style="display: flex; gap: 0.85rem;">
+                                <span style="background: var(--primary-glow); color: #fff; font-weight: 800; font-size: 0.75rem; width: 22px; height: 22px; border-radius: 6px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1px solid var(--primary);">1</span>
+                                <div>
+                                    <h4 style="font-size: 0.8rem; font-weight: 800; color: #fff; margin-bottom: 0.15rem;">Upload Map Image</h4>
+                                    <p style="font-size: 0.725rem; color: var(--text-muted); line-height: 1.4;">Drag and drop your layout plan image (.png, .jpg) into the left panel upload zone.</p>
+                                </div>
+                            </div>
+                            
+                            <div style="display: flex; gap: 0.85rem;">
+                                <span style="background: var(--primary-glow); color: #fff; font-weight: 800; font-size: 0.75rem; width: 22px; height: 22px; border-radius: 6px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1px solid var(--primary);">2</span>
+                                <div>
+                                    <h4 style="font-size: 0.8rem; font-weight: 800; color: #fff; margin-bottom: 0.15rem;">Extract Boundaries</h4>
+                                    <p style="font-size: 0.725rem; color: var(--text-muted); line-height: 1.4;">Use **Local CV Mode** to fetch contours, or **AI Mode (Gemini)** to detect layout shapes and labels automatically.</p>
+                                </div>
+                            </div>
+
+                            <div style="display: flex; gap: 0.85rem;">
+                                <span style="background: var(--primary-glow); color: #fff; font-weight: 800; font-size: 0.75rem; width: 22px; height: 22px; border-radius: 6px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1px solid var(--primary);">3</span>
+                                <div>
+                                    <h4 style="font-size: 0.8rem; font-weight: 800; color: #fff; margin-bottom: 0.15rem;">Draw or Adjust</h4>
+                                    <p style="font-size: 0.725rem; color: var(--text-muted); line-height: 1.4;">Select **Draw** tool to map points manually. Select **Adjust** to drag and edit vertex node handles directly.</p>
+                                </div>
+                            </div>
+
+                            <div style="display: flex; gap: 0.85rem;">
+                                <span style="background: var(--primary-glow); color: #fff; font-weight: 800; font-size: 0.75rem; width: 22px; height: 22px; border-radius: 6px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1px solid var(--primary);">4</span>
+                                <div>
+                                    <h4 style="font-size: 0.8rem; font-weight: 800; color: #fff; margin-bottom: 0.15rem;">Manage Plot Properties</h4>
+                                    <p style="font-size: 0.725rem; color: var(--text-muted); line-height: 1.4;">Click any plot on the layout map to inspect dimensions, modify status, or log reservation contracts.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="margin-top: 1.5rem; background: rgba(79, 70, 229, 0.08); border: 1px solid rgba(79, 70, 229, 0.2); padding: 0.85rem 1rem; border-radius: 10px; width: 100%; display: flex; gap: 0.65rem; align-items: center; font-size: 0.725rem; box-shadow: 0 4px 10px rgba(0,0,0,0.15);">
+                            <i class="fa-solid fa-circle-question" style="color: var(--primary); font-size: 1rem; flex-shrink: 0;"></i>
+                            <span style="color: var(--text-color); line-height: 1.4; font-weight: 500;">Need a standalone copy? Click **Export Standalone Map** at the bottom of the left panel to save an interactive HTML blueprint.</span>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Tab 3: Executive Analytics Dashboard (Admin only) -->
+                <div id="tab-analytics" class="tab-pane" style="height: calc(100% - 3.5rem); overflow-y: auto; display: none; flex-direction: column; gap: 1rem; padding-right: 0.25rem;">
+                    <div style="font-size: 1rem; font-weight: 700; color: #fff; margin-bottom: 0.5rem;"><i class="fa-solid fa-chart-pie"></i> Executive Overview</div>
+                    
+                    <div class="stats-grid" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.8rem;">
+                        <div class="stat-card" style="padding: 1rem; background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.15);">
+                            <div class="stat-value" id="analytics-revenue" style="font-size: 1.2rem; color: #10b981;">₹0</div>
+                            <div class="stat-lbl" style="font-size: 0.65rem;">Revenue Realized</div>
+                        </div>
+                        <div class="stat-card" style="padding: 1rem; background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.15);">
+                            <div class="stat-value" id="analytics-pipeline" style="font-size: 1.2rem; color: #f59e0b;">₹0</div>
+                            <div class="stat-lbl" style="font-size: 0.65rem;">Pipeline (Reserved)</div>
+                        </div>
+                        <div class="stat-card" style="padding: 1rem; background: rgba(59, 130, 246, 0.08); border: 1px solid rgba(59, 130, 246, 0.15); grid-column: span 2;">
+                            <div class="stat-value" id="analytics-total-val" style="font-size: 1.3rem; color: #3b82f6;">₹0</div>
+                            <div class="stat-lbl" style="font-size: 0.65rem;">Total Estimated Catalog Value</div>
+                        </div>
+                        <div class="stat-card" style="padding: 1rem; background: rgba(255, 255, 255, 0.02); border: 1px solid var(--border-color); grid-column: span 2;">
+                            <div class="stat-value" id="analytics-avg-sqft" style="font-size: 1.15rem; color: #f8fafc;">₹0 / SQFT</div>
+                            <div class="stat-lbl" style="font-size: 0.65rem;">Avg Price per Sq Ft Achieved</div>
+                        </div>
+                    </div>
+                    
+                    <div class="card" style="padding: 1.2rem; margin-top: 0.5rem; background: rgba(255, 255, 255, 0.01); display: flex; flex-direction: column; gap: 0.8rem; border-radius: 12px; border: 1px solid var(--border-color);">
+                        <div style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 1px solid var(--border-color); padding-bottom: 0.4rem;">Inventory Status</div>
+                        <div style="display: flex; flex-direction: column; gap: 0.6rem; font-size: 0.8rem;">
+                            <div style="display: flex; justify-content: space-between;">
+                                <span>Available Plots</span>
+                                <span style="font-weight: 700; color: #10b981;" id="analytics-avail-count">0</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between;">
+                                <span>Reserved Plots</span>
+                                <span style="font-weight: 700; color: #f59e0b;" id="analytics-res-count">0</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between;">
+                                <span>Sold Plots</span>
+                                <span style="font-weight: 700; color: #ef4444;" id="analytics-sold-count">0</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; border-top: 1px solid var(--border-color); padding-top: 0.6rem; font-weight: 700;">
+                                <span>Total Layout Plots</span>
+                                <span id="analytics-total-count">0</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- Screen overlays (loader) -->
+    <div class="loading-overlay" id="loading-overlay">
+        <div class="loading-spinner"></div>
+        <div class="loading-title" id="loading-text">Analyzing Real Estate Sheet...</div>
+        <div class="loading-sub" id="loading-subtext">Compiling coordinates from layout data...</div>
+    </div>
+
+    <!-- Agent Account Management Modal Overlay -->
+    <div class="loading-overlay" id="agent-manager-modal" style="display: none; align-items: center; justify-content: center; z-index: 1010; background: rgba(3, 7, 18, 0.85);">
+        <div class="modal-card" style="width: 100%; max-width: 600px; padding: 2rem; display: flex; flex-direction: column; gap: 1.5rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 0.85rem;">
+                <h3 style="margin: 0; font-size: 1.2rem; color: #fff; font-weight: 800; display: flex; align-items: center; gap: 0.6rem;"><i class="fa-solid fa-users-gear" style="color: var(--primary);"></i> Agent User Directory</h3>
+                <button class="btn btn-secondary" id="close-agents-btn" style="padding: 0.35rem 0.65rem; font-size: 0.8rem;"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            
+            <!-- Create User Form -->
+            <div style="background: rgba(255,255,255,0.01); border: 1px solid var(--border-color); padding: 1.25rem; border-radius: 12px; display: flex; flex-direction: column; gap: 1rem;">
+                <div style="font-size: 0.75rem; font-weight: 800; color: var(--primary); text-transform: uppercase; letter-spacing: 0.8px;">Add New Agent Profile</div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.85rem;">
+                    <div class="form-group" style="margin: 0;">
+                        <label style="font-size: 0.7rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Username</label>
+                        <input type="text" id="new-agent-username" class="form-control" placeholder="e.g. rahul" style="height: 38px; font-size: 0.8rem;">
+                    </div>
+                    <div class="form-group" style="margin: 0;">
+                        <label style="font-size: 0.7rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Password</label>
+                        <input type="password" id="new-agent-password" class="form-control" placeholder="e.g. agent123" style="height: 38px; font-size: 0.8rem;">
+                    </div>
+                </div>
+                <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 0.85rem; align-items: end;">
+                    <div class="form-group" style="margin: 0;">
+                        <label style="font-size: 0.7rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Full Name</label>
+                        <input type="text" id="new-agent-name" class="form-control" placeholder="e.g. Rahul Sharma" style="height: 38px; font-size: 0.8rem;">
+                    </div>
+                    <div class="form-group" style="margin: 0;">
+                        <label style="font-size: 0.7rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Role</label>
+                        <select id="new-agent-role" class="form-control" style="height: 38px; font-size: 0.8rem; background: rgba(10, 15, 26, 0.8); border-color: var(--border-color); color: #fff;">
+                            <option value="agent" selected>Agent</option>
+                            <option value="admin">Admin</option>
+                        </select>
+                    </div>
+                </div>
+                <button class="btn btn-primary" id="create-agent-submit" style="padding: 0.65rem; font-size: 0.8rem; font-weight: 700; border-radius: 8px;">
+                    <i class="fa-solid fa-plus"></i> Create Agent Account
+                </button>
+            </div>
+
+            <!-- Tab Toggles -->
+            <div style="display: flex; gap: 0.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem; margin-top: 0.25rem;">
+                <button class="btn btn-primary" id="tab-active-users" style="padding: 0.45rem 0.85rem; font-size: 0.75rem; font-weight: 700; border-radius: 8px;">Active Accounts</button>
+                <button class="btn btn-secondary" id="tab-pending-requests" style="padding: 0.45rem 0.85rem; font-size: 0.75rem; font-weight: 700; border-radius: 8px;">Pending Approvals</button>
+            </div>
+
+            <!-- Active Users list -->
+            <div id="active-users-panel">
+                <div style="max-height: 200px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 10px; background: rgba(0,0,0,0.15);">
+                    <table style="width: 100%; border-collapse: collapse; font-size: 0.8rem; text-align: left;" id="agents-table">
+                        <thead>
+                            <tr style="background: rgba(255,255,255,0.01); border-bottom: 1px solid var(--border-color);">
+                                <th style="padding: 0.75rem;">Name</th>
+                                <th style="padding: 0.75rem;">Username</th>
+                                <th style="padding: 0.75rem;">Status</th>
+                                <th style="padding: 0.75rem; text-align: right;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="agents-list-tbody">
+                            <!-- Filled dynamically in JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Pending Requests list -->
+            <div id="pending-requests-panel" style="display: none;">
+                <div style="max-height: 200px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 10px; background: rgba(0,0,0,0.15);">
+                    <table style="width: 100%; border-collapse: collapse; font-size: 0.8rem; text-align: left;" id="requests-table">
+                        <thead>
+                            <tr style="background: rgba(255,255,255,0.01); border-bottom: 1px solid var(--border-color);">
+                                <th style="padding: 0.75rem;">Name</th>
+                                <th style="padding: 0.75rem;">Username</th>
+                                <th style="padding: 0.75rem;">Requested At</th>
+                                <th style="padding: 0.75rem; text-align: right;">Authorization</th>
+                            </tr>
+                        </thead>
+                        <tbody id="requests-list-tbody">
+                            <!-- Filled dynamically in JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Help / User Guide Modal -->
+    <div class="loading-overlay" id="help-modal" style="display: none; align-items: center; justify-content: center; z-index: 1020; background: rgba(3, 7, 18, 0.85);">
+        <div class="modal-card" style="width: 100%; max-width: 500px; padding: 2.2rem; display: flex; flex-direction: column; gap: 1.5rem; max-height: 90vh; overflow-y: auto; text-align: left;">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 0.85rem;">
+                <h3 style="margin: 0; font-size: 1.25rem; color: #fff; font-weight: 800; display: flex; align-items: center; gap: 0.6rem;">
+                    <i class="fa-solid fa-circle-question" style="color: var(--primary);"></i> Workspace Guide
+                </h3>
+                <button id="help-close-btn" style="background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 1.4rem; transition: color 0.2s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='var(--text-muted)'"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            
+            <div style="font-size: 0.8rem; line-height: 1.6; color: var(--text-color); display: flex; flex-direction: column; gap: 1.25rem;">
+                <div style="background: rgba(255,255,255,0.01); border: 1px solid var(--border-color); padding: 1rem; border-radius: 10px;">
+                    <h4 style="font-weight: 800; color: var(--primary); margin-bottom: 0.35rem; font-size: 0.85rem; display: flex; align-items: center; gap: 6px;"><i class="fa-solid fa-arrows-up-down-left-right"></i> Map Navigation</h4>
+                    <p style="color: var(--text-muted); margin: 0;">Use the mouse wheel to **Zoom** the layout. Click and drag the map background to **Pan** around.</p>
+                </div>
+                
+                <div style="background: rgba(255,255,255,0.01); border: 1px solid var(--border-color); padding: 1rem; border-radius: 10px;">
+                    <h4 style="font-weight: 800; color: var(--primary); margin-bottom: 0.5rem; font-size: 0.85rem; display: flex; align-items: center; gap: 6px;"><i class="fa-solid fa-crop-simple"></i> Canvas Tools</h4>
+                    <ul style="list-style-type: none; padding-left: 0; color: var(--text-muted); display: flex; flex-direction: column; gap: 0.5rem; margin: 0;">
+                        <li style="display: flex; gap: 6px;"><strong style="color: #fff; min-width: 65px; display: inline-block;">Select:</strong> Click any plot boundary on the map to inspect specifications or adjust reservation logs.</li>
+                        <li style="display: flex; gap: 6px;"><strong style="color: #fff; min-width: 65px; display: inline-block;">Draw:</strong> Click layout points sequentially to outline a custom polygon area. Click the first node to close.</li>
+                        <li style="display: flex; gap: 6px;"><strong style="color: #fff; min-width: 65px; display: inline-block;">Adjust:</strong> Adjust individual vertices handles by dragging nodes to calibrate shapes.</li>
+                        <li style="display: flex; gap: 6px;"><strong style="color: #fff; min-width: 65px; display: inline-block;">Delete:</strong> Select delete tool and click a plot polygon to delete it from layout coordinate tables.</li>
+                    </ul>
+                </div>
+                
+                <div style="background: rgba(255,255,255,0.01); border: 1px solid var(--border-color); padding: 1rem; border-radius: 10px;">
+                    <h4 style="font-weight: 800; color: var(--primary); margin-bottom: 0.35rem; font-size: 0.85rem; display: flex; align-items: center; gap: 6px;"><i class="fa-solid fa-wand-magic-sparkles"></i> AI & CV Extraction</h4>
+                    <p style="color: var(--text-muted); margin: 0;">Use **CV Extraction** for computer vision vector traces. Use **AI Mode (Gemini)** to automatically read labels, plot boundaries, and properties from layouts.</p>
+                </div>
+            </div>
+            
+            <button class="btn btn-primary" id="help-ok-btn" style="width: 100%; padding: 0.75rem; font-weight: 700; margin-top: 0.5rem; border-radius: 10px;">
+                Got it, let's start!
+            </button>
+        </div>
+    </div>
+
+    <!-- Confirm Dialogue Modal Overlay -->
+    <div class="loading-overlay" id="confirm-modal" style="display: none; align-items: center; justify-content: center; z-index: 1020; background: rgba(3, 7, 18, 0.85);">
+        <div class="modal-card" style="width: 100%; max-width: 400px; padding: 2rem; display: flex; flex-direction: column; gap: 1.25rem; text-align: center;">
+            <div style="font-size: 2.5rem; color: var(--warning); filter: drop-shadow(0 0 10px var(--warning-fill));"><i class="fa-solid fa-triangle-exclamation"></i></div>
+            <h3 style="margin: 0; font-size: 1.2rem; color: #fff; font-weight: 800;" id="confirm-modal-title">Confirm Action</h3>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0; line-height: 1.5;" id="confirm-modal-body">Are you sure you want to perform this operation?</p>
+            <div style="display: flex; gap: 0.75rem; margin-top: 0.5rem;">
+                <button class="btn btn-secondary" id="confirm-cancel-btn" style="flex: 1; padding: 0.65rem; border-radius: 8px;">No, Cancel</button>
+                <button class="btn btn-primary" id="confirm-proceed-btn" style="flex: 1; padding: 0.65rem; border-radius: 8px;">Yes, Proceed</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hover Map Tooltip floating box -->
+    <div id="map-tooltip" style="position: absolute; display: none; background: rgba(15, 23, 42, 0.95); border: 1px solid var(--primary); border-radius: 6px; padding: 0.5rem 0.75rem; font-size: 0.75rem; color: #fff; pointer-events: none; z-index: 999; box-shadow: 0 4px 12px rgba(0,0,0,0.5); backdrop-filter: blur(4px);">
+        <!-- Filled dynamically -->
+    </div>
+
+    <!-- Application Script -->
+    <script src="js/app.js"></script>
+</body>
+</html>
