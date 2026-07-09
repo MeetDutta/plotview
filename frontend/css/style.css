@@ -1380,4 +1380,76 @@ polygon.amenity {
     }
 }
 
+/* --- PLOTEDIT MODAL CUSTOM STYLES --- */
+input[name="plotedit-upscale"]:checked + .upscale-option {
+    background: var(--primary) !important;
+    color: #fff !important;
+    box-shadow: 0 0 10px rgba(79, 70, 229, 0.4);
+}
+input[name="plotedit-format"]:checked + .format-option {
+    background: var(--primary) !important;
+    color: #fff !important;
+    box-shadow: 0 0 10px rgba(79, 70, 229, 0.4);
+}
+.upscale-option, .format-option {
+    transition: all 0.2s ease;
+}
+.upscale-option:hover, .format-option:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: #fff;
+}
+.preset-chip {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.725rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--text-muted);
+}
+.preset-chip::before {
+    content: '';
+    display: block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: var(--chip-color);
+}
+.preset-chip:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: #fff;
+}
+.preset-chip.active {
+    border-color: var(--primary);
+    background: rgba(79, 70, 229, 0.1);
+    color: #fff;
+}
+.suggestion-chip {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 0.725rem;
+    color: #fff;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.suggestion-chip:hover {
+    background: rgba(79, 70, 229, 0.08);
+    border-color: rgba(79, 70, 229, 0.4);
+    color: #fff;
+}
+.suggestion-chip.active {
+    background: rgba(79, 70, 229, 0.2);
+    border-color: var(--primary);
+    font-weight: 600;
+}
+
 

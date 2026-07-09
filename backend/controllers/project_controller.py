@@ -9,6 +9,9 @@ from PIL import Image
 from datetime import datetime, timedelta
 from flask import Blueprint, request, jsonify, current_app, Response
 import google.generativeai as genai
+import uuid
+import io
+from backend.detector import detect_layout_bbox, extract_plot_map
 import queue
 
 from backend.controllers.auth_controller import get_current_user
@@ -1423,3 +1426,273 @@ def api_save_config():
         return jsonify({"success": True})
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
+
+@project_bp.route('/api/projects/<project_id>/plotedit/upload-temp', methods=['POST'])
+def api_plotedit_upload_temp(project_id):
+    current_user = get_current_user()
+    if not current_user or current_user["role"] != "admin":
+        return jsonify({"error": "Unauthorized"}), 401
+        
+    if 'image' not in request.files:
+        return jsonify({'success': False, 'error': 'No file part in the request'}), 400
+    
+    file = request.files['image']
+    if file.filename == '':
+        return jsonify({'success': False, 'error': 'No selected file'}), 400
+    
+    # Verify file extension is allowed
+    ext = file.filename.rsplit('.', 1)[-1].lower()
+    if ext not in {'png', 'jpg', 'jpeg', 'webp'}:
+        return jsonify({'success': False, 'error': 'File type not allowed'}), 400
+        
+    # Ensure project exists
+    project = get_project_by_id(project_id)
+    if not project:
+        return jsonify({'success': False, 'error': 'Project not found'}), 404
+        
+    # Save as temp filename
+    temp_filename = f"temp_{project_id}_{uuid.uuid4()}.{ext}"
+    filepath = os.path.join(current_app.config['UPLOAD_FOLDER'], temp_filename)
+    file.save(filepath)
+    
+    try:
+        detection_results = detect_layout_bbox(filepath)
+        return jsonify({
+            'success': True,
+            'filename': temp_filename,
+            'image_size': detection_results['image_size'],
+            'suggested_bg_color': detection_results['suggested_bg_color'],
+            'candidates': detection_results['candidates']
+        })
+    except Exception as e:
+        if os.path.exists(filepath):
+            os.remove(filepath)
+        return jsonify({'success': False, 'error': f"Failed to analyze image: {str(e)}"}), 500
+
+
+@project_bp.route('/api/projects/<project_id>/plotedit/process', methods=['POST'])
+def api_plotedit_process(project_id):
+    current_user = get_current_user()
+    if not current_user or current_user["role"] != "admin":
+        return jsonify({"error": "Unauthorized"}), 401
+        
+    data = request.json or {}
+    filename = data.get('filename')
+    x = data.get('x')
+    y = data.get('y')
+    width = data.get('width')
+    height = data.get('height')
+    bg_color = data.get('bg_color')  # expected format: [r, g, b]
+    tolerance = data.get('tolerance', 30)
+    output_format = data.get('format', 'png').lower()
+    
+    # Enhancement parameters
+    brightness = data.get('brightness', 0)
+    contrast = data.get('contrast', 0)
+    sharpness = data.get('sharpness', 0)
+    saturation = data.get('saturation', 1.0)
+    upscale = data.get('upscale', 1.0)
+
+    if not filename:
+        return jsonify({'success': False, 'error': 'Missing filename parameter'}), 400
+    
+    filepath = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
+    if not os.path.exists(filepath):
+        return jsonify({'success': False, 'error': 'Source file not found'}), 404
+        
+    try:
+        x_int = int(float(x)) if x is not None else 0
+        y_int = int(float(y)) if y is not None else 0
+        w_int = int(float(width)) if width is not None else 0
+        h_int = int(float(height)) if height is not None else 0
+        
+        if not bg_color or not isinstance(bg_color, list) or len(bg_color) != 3:
+            bg_color = [181, 211, 138] 
+            
+        tolerance = int(tolerance)
+        brightness = int(brightness)
+        contrast = int(contrast)
+        sharpness = int(sharpness)
+        saturation = float(saturation)
+        upscale = float(upscale)
+        
+        pil_img = extract_plot_map(
+            image_path=filepath,
+            x=x_int,
+            y=y_int,
+            width=w_int,
+            height=h_int,
+            bg_rgb=bg_color,
+            tolerance=tolerance,
+            brightness=brightness,
+            contrast=contrast,
+            sharpness=sharpness,
+            saturation=saturation,
+            upscale=upscale,
+            output_format=output_format
+        )
+        
+        img_io = io.BytesIO()
+        if output_format == 'png':
+            pil_img.save(img_io, format='PNG')
+            img_io.seek(0)
+            mimetype = 'image/png'
+        else:
+            pil_img.save(img_io, format='JPEG', quality=95)
+            img_io.seek(0)
+            mimetype = 'image/jpeg'
+            
+        return Response(img_io.getvalue(), mimetype=mimetype)
+        
+    except Exception as e:
+        return jsonify({'success': False, 'error': f"Failed to process image: {str(e)}"}), 500
+
+
+@project_bp.route('/api/projects/<project_id>/plotedit/save', methods=['POST'])
+def api_plotedit_save(project_id):
+    current_user = get_current_user()
+    if not current_user or current_user["role"] != "admin":
+        return jsonify({"error": "Unauthorized"}), 401
+        
+    data = request.json or {}
+    filename = data.get('filename')
+    x = data.get('x')
+    y = data.get('y')
+    width = data.get('width')
+    height = data.get('height')
+    bg_color = data.get('bg_color')
+    tolerance = data.get('tolerance', 30)
+    output_format = data.get('format', 'png').lower()
+    
+    brightness = data.get('brightness', 0)
+    contrast = data.get('contrast', 0)
+    sharpness = data.get('sharpness', 0)
+    saturation = data.get('saturation', 1.0)
+    upscale = data.get('upscale', 1.0)
+
+    if not filename:
+        return jsonify({'success': False, 'error': 'Missing filename parameter'}), 400
+    
+    filepath = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
+    if not os.path.exists(filepath):
+        return jsonify({'success': False, 'error': 'Source file not found'}), 404
+        
+    row = get_project_by_id(project_id)
+    if not row:
+        return jsonify({"error": "Project not found"}), 404
+        
+    try:
+        activity_log = json.loads(row["activity_log"])
+    except:
+        activity_log = []
+        
+    try:
+        x_int = int(float(x)) if x is not None else 0
+        y_int = int(float(y)) if y is not None else 0
+        w_int = int(float(width)) if width is not None else 0
+        h_int = int(float(height)) if height is not None else 0
+        
+        if not bg_color or not isinstance(bg_color, list) or len(bg_color) != 3:
+            bg_color = [181, 211, 138] 
+            
+        tolerance = int(tolerance)
+        brightness = int(brightness)
+        contrast = int(contrast)
+        sharpness = int(sharpness)
+        saturation = float(saturation)
+        upscale = float(upscale)
+        
+        pil_img = extract_plot_map(
+            image_path=filepath,
+            x=x_int,
+            y=y_int,
+            width=w_int,
+            height=h_int,
+            bg_rgb=bg_color,
+            tolerance=tolerance,
+            brightness=brightness,
+            contrast=contrast,
+            sharpness=sharpness,
+            saturation=saturation,
+            upscale=upscale,
+            output_format=output_format
+        )
+        
+        dest_filename = f"layout_{project_id}.{output_format}"
+        dest_path = os.path.join(current_app.config['UPLOAD_FOLDER'], dest_filename)
+        
+        if output_format == 'png':
+            pil_img.save(dest_path, format='PNG')
+        else:
+            pil_img.save(dest_path, format='JPEG', quality=95)
+            
+        raw_ext = filename.rsplit('.', 1)[-1].lower()
+        raw_filename = f"raw_layout_{project_id}.{raw_ext}"
+        raw_dest_path = os.path.join(current_app.config['UPLOAD_FOLDER'], raw_filename)
+        
+        if filepath != raw_dest_path:
+            import shutil
+            shutil.copy2(filepath, raw_dest_path)
+            
+        if filename.startswith("temp_") and os.path.exists(filepath):
+            try:
+                os.remove(filepath)
+            except:
+                pass
+                
+        activity_log.append({
+            "timestamp": datetime.now().isoformat(),
+            "user_name": current_user["name"],
+            "username": current_user["username"],
+            "plot_number": "Multiple / Layout",
+            "action": "creation",
+            "details": f"Optimized map layout image generated and saved ({dest_filename}) by Admin {current_user['name']}."
+        })
+        
+        save_project(project_id, json.loads(row["plots"]), json.loads(row["decorations"]), dest_filename, activity_log)
+        
+        return jsonify({
+            "success": True,
+            "filename": dest_filename,
+            "url": f"/uploads/{dest_filename}?t={int(time.time())}"
+        })
+        
+    except Exception as e:
+        return jsonify({'success': False, 'error': f"Failed to save processed image: {str(e)}"}), 500
+
+
+@project_bp.route('/api/projects/<project_id>/plotedit/load-existing', methods=['GET'])
+def api_plotedit_load_existing(project_id):
+    current_user = get_current_user()
+    if not current_user or current_user["role"] != "admin":
+        return jsonify({"error": "Unauthorized"}), 401
+        
+    project = get_project_by_id(project_id)
+    if not project:
+        return jsonify({"error": "Project not found"}), 404
+        
+    raw_filename = None
+    for ext in ['png', 'jpg', 'jpeg', 'webp']:
+        candidate = f"raw_layout_{project_id}.{ext}"
+        if os.path.exists(os.path.join(current_app.config['UPLOAD_FOLDER'], candidate)):
+            raw_filename = candidate
+            break
+            
+    if not raw_filename and project["image_filename"]:
+        raw_filename = project["image_filename"]
+        
+    if not raw_filename:
+        return jsonify({"success": False, "error": "No existing image to crop"}), 400
+        
+    filepath = os.path.join(current_app.config['UPLOAD_FOLDER'], raw_filename)
+    try:
+        detection_results = detect_layout_bbox(filepath)
+        return jsonify({
+            'success': True,
+            'filename': raw_filename,
+            'image_size': detection_results['image_size'],
+            'suggested_bg_color': detection_results['suggested_bg_color'],
+            'candidates': detection_results['candidates']
+        })
+    except Exception as e:
+        return jsonify({'success': False, 'error': f"Failed to analyze existing image: {str(e)}"}), 500

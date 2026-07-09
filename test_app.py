@@ -177,5 +177,87 @@ class RealEstateAppTests(unittest.TestCase):
             self.assertEqual(dec_polygon[0], [78.0, 5.0])
             self.assertEqual(dec_polygon[2], [80.0, 85.0])
 
+    def test_plotedit_flow(self):
+        # 1. Create a project
+        proj_response = self.client.post(
+            '/api/projects/new',
+            data=json.dumps({"name": "PlotEdit Test Layout"}),
+            content_type='application/json',
+            headers={"X-User-Token": "user_admin"}
+        )
+        self.assertEqual(proj_response.status_code, 200)
+        proj_data = json.loads(proj_response.data)
+        project_id = proj_data["project"]["id"]
+
+        # 2. Upload a layout temp image
+        import io
+        from PIL import Image
+        img_file = io.BytesIO()
+        Image.new('RGB', (100, 100), color=(181, 211, 138)).save(img_file, 'JPEG')
+        img_file.seek(0)
+        
+        upload_response = self.client.post(
+            f'/api/projects/{project_id}/plotedit/upload-temp',
+            data={'image': (img_file, 'test_image.jpg')},
+            content_type='multipart/form-data',
+            headers={"X-User-Token": "user_admin"}
+        )
+        self.assertEqual(upload_response.status_code, 200, msg=upload_response.data)
+        upload_data = json.loads(upload_response.data)
+        self.assertTrue(upload_data["success"])
+        temp_filename = upload_data["filename"]
+        
+        # 3. Process image (returns file response)
+        process_response = self.client.post(
+            f'/api/projects/{project_id}/plotedit/process',
+            data=json.dumps({
+                "filename": temp_filename,
+                "x": 0,
+                "y": 0,
+                "width": 50,
+                "height": 50,
+                "bg_color": [181, 211, 138],
+                "tolerance": 30,
+                "format": "png",
+                "upscale": 1.0
+            }),
+            content_type='application/json',
+            headers={"X-User-Token": "user_admin"}
+        )
+        self.assertEqual(process_response.status_code, 200)
+        self.assertEqual(process_response.content_type, 'image/png')
+        
+        # 4. Save image
+        save_response = self.client.post(
+            f'/api/projects/{project_id}/plotedit/save',
+            data=json.dumps({
+                "filename": temp_filename,
+                "x": 0,
+                "y": 0,
+                "width": 50,
+                "height": 50,
+                "bg_color": [181, 211, 138],
+                "tolerance": 30,
+                "format": "png",
+                "upscale": 1.0
+            }),
+            content_type='application/json',
+            headers={"X-User-Token": "user_admin"}
+        )
+        self.assertEqual(save_response.status_code, 200)
+        save_data = json.loads(save_response.data)
+        self.assertTrue(save_data["success"])
+        self.assertIn("layout_", save_data["filename"])
+        
+        # 5. Load existing map layout configuration
+        load_response = self.client.get(
+            f'/api/projects/{project_id}/plotedit/load-existing',
+            headers={"X-User-Token": "user_admin"}
+        )
+        self.assertEqual(load_response.status_code, 200)
+        load_data = json.loads(load_response.data)
+        self.assertTrue(load_data["success"])
+        self.assertIn("raw_layout_", load_data["filename"])
+
 if __name__ == '__main__':
     unittest.main()

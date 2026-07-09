@@ -10,6 +10,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Cropper.js CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
     <!-- Stylesheet -->
     <link rel="stylesheet" href="css/style.css">
 </head>
@@ -216,6 +218,9 @@
                                 <button class="btn btn-secondary" id="remove-file-btn" style="padding: 2px 6px; font-size: 0.65rem;"><i class="fa-solid fa-trash"></i></button>
                             </div>
                         </div>
+                        <button class="btn btn-secondary" id="open-plotedit-btn" style="display: none; width: 100%; margin-top: 0.5rem; justify-content: center; align-items: center; gap: 0.5rem; font-weight: 700; font-size: 0.8rem;">
+                            <i class="fa-solid fa-scissors"></i> Crop & Optimize Map
+                        </button>
                     </div>
 
                     <!-- Upload CSV Area -->
@@ -834,11 +839,215 @@
         </div>
     </div>
 
+    <!-- Crop & Optimize Modal -->
+    <div id="plotedit-modal" class="loading-overlay" style="display: none; align-items: center; justify-content: center; z-index: 1100; background: rgba(3, 7, 18, 0.85); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);">
+        <div class="modal-card" style="width: 95%; max-width: 1200px; height: 90vh; max-height: 800px; padding: 0; display: flex; flex-direction: column; background: rgba(15, 23, 42, 0.95); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 20px; overflow: hidden; box-shadow: 0 30px 60px rgba(0,0,0,0.6);">
+            
+            <!-- Modal Header -->
+            <div style="padding: 1.25rem 2rem; border-bottom: 1px solid rgba(255, 255, 255, 0.08); display: flex; justify-content: space-between; align-items: center; background: rgba(30, 41, 59, 0.2);">
+                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                    <i class="fa-solid fa-scissors" style="color: var(--primary); font-size: 1.25rem;"></i>
+                    <div>
+                        <h3 style="margin: 0; font-size: 1.15rem; color: #fff; font-weight: 800; letter-spacing: -0.5px;">Crop & Optimize Layout Plan</h3>
+                        <p style="margin: 0; font-size: 0.75rem; color: var(--text-muted);">Adjust cropping boundaries, remove background colors, and enhance resolution.</p>
+                    </div>
+                </div>
+                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                    <span class="badge" style="background: rgba(79, 70, 229, 0.15); border: 1px solid rgba(79, 70, 229, 0.25); color: #818cf8; padding: 4px 10px; border-radius: 20px; font-size: 0.7rem; font-weight: 700;"><i class="fa-solid fa-bolt"></i> GPU Accelerated CV</span>
+                    <button class="btn btn-secondary" id="plotedit-close-btn" style="padding: 6px 12px; border-radius: 8px; font-size: 0.8rem; background: transparent; border: none; cursor: pointer; color: var(--text-muted);"><i class="fa-solid fa-xmark" style="font-size: 1.1rem;"></i></button>
+                </div>
+            </div>
+
+            <!-- Modal Body (Two columns) -->
+            <div style="flex: 1; display: flex; overflow: hidden;">
+                
+                <!-- Left Panel: Cropper Workspace -->
+                <div style="flex: 1.3; display: flex; flex-direction: column; border-right: 1px solid rgba(255, 255, 255, 0.08); background: rgba(3, 7, 18, 0.3); overflow: hidden; position: relative;">
+                    <div style="padding: 0.75rem 1.25rem; border-bottom: 1px solid rgba(255, 255, 255, 0.05); display: flex; justify-content: space-between; align-items: center; background: rgba(15, 23, 42, 0.5);">
+                        <span style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 6px;"><i class="fa-solid fa-crop-simple"></i> Crop Plan Area</span>
+                        <div style="display: flex; gap: 0.5rem;">
+                            <button class="btn btn-secondary" id="plotedit-rotate-left" style="padding: 4px 8px; font-size: 0.75rem;" title="Rotate Left"><i class="fa-solid fa-rotate-left"></i></button>
+                            <button class="btn btn-secondary" id="plotedit-rotate-right" style="padding: 4px 8px; font-size: 0.75rem;" title="Rotate Right"><i class="fa-solid fa-rotate-right"></i></button>
+                            <button class="btn btn-secondary" id="plotedit-reset" style="padding: 4px 8px; font-size: 0.75rem;" title="Reset Crop Box"><i class="fa-solid fa-arrow-rotate-left"></i></button>
+                        </div>
+                    </div>
+                    
+                    <!-- Cropper wrapper -->
+                    <div style="flex: 1; display: flex; align-items: center; justify-content: center; overflow: hidden; padding: 1.5rem; background: #030712;">
+                        <img id="plotedit-source-img" style="max-width: 100%; max-height: 100%; display: block;" src="" alt="Source Plan">
+                    </div>
+                    
+                    <!-- Suggestions Bar -->
+                    <div id="plotedit-suggestions-bar" style="padding: 0.75rem 1.25rem; border-top: 1px solid rgba(255, 255, 255, 0.05); background: rgba(15, 23, 42, 0.4); display: flex; align-items: center; gap: 0.75rem; overflow-x: auto; white-space: nowrap;">
+                        <span style="font-size: 0.725rem; font-weight: 700; color: var(--text-muted); display: flex; align-items: center; gap: 4px;"><i class="fa-regular fa-lightbulb" style="color: var(--warning);"></i> Auto-Detected:</span>
+                        <div id="plotedit-suggestion-chips" style="display: flex; gap: 0.5rem;">
+                            <!-- Suggestions populated dynamically -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Panel: Extraction Controls & Preview -->
+                <div style="flex: 1; display: flex; flex-direction: column; overflow-y: auto; background: rgba(15, 23, 42, 0.2);">
+                    
+                    <div style="padding: 1.5rem; display: flex; flex-direction: column; gap: 1.5rem;">
+                        
+                        <!-- Color Removal controls -->
+                        <div>
+                            <span style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 0.75rem;">Background Removal</span>
+                            <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 12px; padding: 1rem; display: flex; flex-direction: column; gap: 1rem;">
+                                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                    <div id="plotedit-color-preview" style="width: 38px; height: 38px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); background-color: #B5D38A;"></div>
+                                    <div style="flex: 1; display: flex; align-items: center; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; padding: 4px 10px;">
+                                        <input type="text" id="plotedit-color-hex" style="background: transparent; border: none; color: #fff; outline: none; font-size: 0.85rem; font-weight: 600; width: 80px;" value="#B5D38A" readonly>
+                                        <input type="color" id="plotedit-color-picker" style="opacity: 0; width: 0; height: 0; padding: 0; border: none;" value="#b5d38a">
+                                        <button class="btn btn-secondary" id="plotedit-trigger-picker" style="background: transparent; border: none; padding: 4px 8px; font-size: 0.75rem; cursor: pointer;"><i class="fa-solid fa-palette"></i> Pick</button>
+                                    </div>
+                                    <button class="btn btn-secondary" id="plotedit-eyedropper" style="height: 38px; width: 38px; display: flex; align-items: center; justify-content: center; border-radius: 8px;" title="Sample color from screen"><i class="fa-solid fa-eye-dropper"></i></button>
+                                </div>
+
+                                <!-- Preset chips -->
+                                <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                                    <button class="preset-chip active" data-color="#b5d38a" style="--chip-color: #b5d38a; padding: 4px 10px; border-radius: 6px; font-size: 0.725rem; font-weight: 600; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); color: #fff; cursor: pointer;">Plan Green</button>
+                                    <button class="preset-chip" data-color="#ffffff" style="--chip-color: #ffffff; padding: 4px 10px; border-radius: 6px; font-size: 0.725rem; font-weight: 600; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); color: #fff; cursor: pointer;">White</button>
+                                    <button class="preset-chip" data-color="#f4f5f6" style="--chip-color: #f4f5f6; padding: 4px 10px; border-radius: 6px; font-size: 0.725rem; font-weight: 600; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); color: #fff; cursor: pointer;">Light Gray</button>
+                                    <button class="preset-chip" id="plotedit-custom-preset" data-color="custom" style="padding: 4px 10px; border-radius: 6px; font-size: 0.725rem; font-weight: 600; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); color: #fff; cursor: pointer;">Custom</button>
+                                </div>
+
+                                <!-- Tolerance slider -->
+                                <div>
+                                    <div style="display: flex; justify-content: space-between; font-size: 0.75rem; font-weight: 600; margin-bottom: 0.4rem;">
+                                        <span style="color: var(--text-muted);">Tolerance</span>
+                                        <span id="plotedit-tolerance-val" style="color: var(--primary);">30</span>
+                                    </div>
+                                    <input type="range" id="plotedit-tolerance-slider" min="10" max="120" value="30" style="width: 100%; accent-color: var(--primary);">
+                                    <div style="display: flex; justify-content: space-between; font-size: 0.6rem; color: var(--text-muted); margin-top: 0.2rem;">
+                                        <span>Precise</span>
+                                        <span>Balanced</span>
+                                        <span>Aggressive</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Image Enhancement sliders -->
+                        <div>
+                            <span style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 0.75rem;"><i class="fa-solid fa-wand-magic-sparkles" style="color: var(--primary); margin-right: 4px;"></i> Layout Enhancements</span>
+                            <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 12px; padding: 1.2rem; display: flex; flex-direction: column; gap: 1rem;">
+                                <!-- Resolution Upscaling -->
+                                <div>
+                                    <div style="display: flex; flex-direction: column; gap: 2px; font-size: 0.75rem; font-weight: 600; margin-bottom: 0.5rem;">
+                                        <span style="color: #fff;">Resolution Upscale (Lanczos)</span>
+                                        <span style="font-size: 0.65rem; color: var(--text-muted); font-weight: 400;">Increases quality of line segments and text labels.</span>
+                                    </div>
+                                    <div style="display: flex; gap: 0.5rem; background: rgba(0,0,0,0.25); padding: 4px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);">
+                                        <label style="flex: 1; text-align: center; cursor: pointer;">
+                                            <input type="radio" name="plotedit-upscale" value="1.0" checked style="display: none;">
+                                            <div class="upscale-option" style="padding: 6px; font-size: 0.75rem; font-weight: 700; border-radius: 6px; color: var(--text-muted);">1x</div>
+                                        </label>
+                                        <label style="flex: 1; text-align: center; cursor: pointer;">
+                                            <input type="radio" name="plotedit-upscale" value="1.5" style="display: none;">
+                                            <div class="upscale-option" style="padding: 6px; font-size: 0.75rem; font-weight: 700; border-radius: 6px; color: var(--text-muted);">1.5x</div>
+                                        </label>
+                                        <label style="flex: 1; text-align: center; cursor: pointer;">
+                                            <input type="radio" name="plotedit-upscale" value="2.0" style="display: none;">
+                                            <div class="upscale-option" style="padding: 6px; font-size: 0.75rem; font-weight: 700; border-radius: 6px; color: var(--text-muted);">2x</div>
+                                        </label>
+                                        <label style="flex: 1; text-align: center; cursor: pointer;">
+                                            <input type="radio" name="plotedit-upscale" value="3.0" style="display: none;">
+                                            <div class="upscale-option" style="padding: 6px; font-size: 0.75rem; font-weight: 700; border-radius: 6px; color: var(--text-muted);">3x</div>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <!-- Sharpening -->
+                                <div>
+                                    <div style="display: flex; justify-content: space-between; font-size: 0.75rem; font-weight: 600; margin-bottom: 0.3rem;">
+                                        <span style="color: #fff;">Line Sharpening</span>
+                                        <span id="plotedit-sharpness-val" style="color: var(--primary);">0</span>
+                                    </div>
+                                    <input type="range" id="plotedit-sharpness-slider" min="0" max="10" value="0" style="width: 100%; accent-color: var(--primary);">
+                                </div>
+
+                                <!-- Contrast -->
+                                <div>
+                                    <div style="display: flex; justify-content: space-between; font-size: 0.75rem; font-weight: 600; margin-bottom: 0.3rem;">
+                                        <span style="color: #fff;">Contrast Adjustment</span>
+                                        <span id="plotedit-contrast-val" style="color: var(--primary);">0</span>
+                                    </div>
+                                    <input type="range" id="plotedit-contrast-slider" min="-30" max="50" value="0" style="width: 100%; accent-color: var(--primary);">
+                                </div>
+
+                                <!-- Brightness -->
+                                <div>
+                                    <div style="display: flex; justify-content: space-between; font-size: 0.75rem; font-weight: 600; margin-bottom: 0.3rem;">
+                                        <span style="color: #fff;">Brightness</span>
+                                        <span id="plotedit-brightness-val" style="color: var(--primary);">0</span>
+                                    </div>
+                                    <input type="range" id="plotedit-brightness-slider" min="-30" max="30" value="0" style="width: 100%; accent-color: var(--primary);">
+                                </div>
+
+                                <!-- Saturation -->
+                                <div>
+                                    <div style="display: flex; justify-content: space-between; font-size: 0.75rem; font-weight: 600; margin-bottom: 0.3rem;">
+                                        <span style="color: #fff;">Saturation</span>
+                                        <span id="plotedit-saturation-val" style="color: var(--primary);">1.0</span>
+                                    </div>
+                                    <input type="range" id="plotedit-saturation-slider" min="0.5" max="2.0" step="0.1" value="1.0" style="width: 100%; accent-color: var(--primary);">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Output properties -->
+                        <div>
+                            <span style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 0.75rem;">Output Formatting</span>
+                            <div style="display: flex; gap: 0.5rem; background: rgba(0,0,0,0.25); padding: 4px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);">
+                                <label style="flex: 1; text-align: center; cursor: pointer;">
+                                    <input type="radio" name="plotedit-format" value="png" checked style="display: none;">
+                                    <div class="format-option" style="padding: 8px; font-size: 0.75rem; font-weight: 700; border-radius: 6px; color: var(--text-muted); display: flex; align-items: center; justify-content: center; gap: 4px;"><i class="fa-solid fa-file-image"></i> PNG (Transparent)</div>
+                                </label>
+                                <label style="flex: 1; text-align: center; cursor: pointer;">
+                                    <input type="radio" name="plotedit-format" value="jpg" style="display: none;">
+                                    <div class="format-option" style="padding: 8px; font-size: 0.75rem; font-weight: 700; border-radius: 6px; color: var(--text-muted); display: flex; align-items: center; justify-content: center; gap: 4px;"><i class="fa-solid fa-file-jpeg"></i> JPG (White BG)</div>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Live preview card -->
+                        <div>
+                            <span style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 0.75rem;">Output Preview</span>
+                            <div id="plotedit-preview-card" style="width: 100%; aspect-ratio: 16/10; background-image: radial-gradient(rgba(255,255,255,0.15) 1px, transparent 0), radial-gradient(rgba(255,255,255,0.15) 1px, transparent 0); background-size: 16px 16px; background-position: 0 0, 8px 8px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.08); background-color: #0c101b; display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; cursor: pointer;">
+                                <div id="plotedit-preview-placeholder" class="active" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.5rem; position: absolute; z-index: 2; color: var(--text-muted);">
+                                    <i class="fa-solid fa-spinner fa-spin" style="font-size: 1.5rem; color: var(--primary);"></i>
+                                    <p style="font-size: 0.725rem; font-weight: 600; margin: 0;">Generating Live Preview...</p>
+                                </div>
+                                <img id="plotedit-preview-img" style="max-width: 100%; max-height: 100%; display: none; object-fit: contain;" src="" alt="Plot Extract Preview">
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Modal Footer -->
+            <div style="padding: 1.25rem 2rem; border-top: 1px solid rgba(255, 255, 255, 0.08); display: flex; justify-content: space-between; align-items: center; background: rgba(30, 41, 59, 0.2);">
+                <button class="btn btn-secondary" id="plotedit-cancel-btn" style="padding: 0.65rem 1.25rem; border-radius: 8px; font-weight: 700; font-size: 0.85rem;">Cancel</button>
+                <div style="display: flex; gap: 0.75rem; align-items: center;">
+                    <span id="plotedit-dimension-info" style="font-size: 0.725rem; font-weight: 700; color: var(--text-muted);">Calculating...</span>
+                    <button class="btn btn-primary" id="plotedit-save-btn" style="padding: 0.65rem 1.5rem; border-radius: 8px; font-weight: 700; font-size: 0.85rem; display: flex; align-items: center; gap: 6px;"><i class="fa-solid fa-circle-check"></i> Apply & Save to Project</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
     <!-- Hover Map Tooltip floating box -->
     <div id="map-tooltip" style="position: absolute; display: none; background: rgba(15, 23, 42, 0.95); border: 1px solid var(--primary); border-radius: 6px; padding: 0.5rem 0.75rem; font-size: 0.75rem; color: #fff; pointer-events: none; z-index: 999; box-shadow: 0 4px 12px rgba(0,0,0,0.5); backdrop-filter: blur(4px);">
         <!-- Filled dynamically -->
     </div>
 
+    <!-- Cropper.js Script -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
     <!-- Application Script -->
     <script src="js/app.js"></script>
 </body>

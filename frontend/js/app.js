@@ -26,6 +26,14 @@ let drawingPoints = [];
 let draggedNodeIndex = null;
 let currentFilter = 'all';
 
+// State Management for Plot Editing
+let ploteditCropper = null;
+let ploteditFilename = null;
+let ploteditCandidates = [];
+let ploteditImageSize = { width: 0, height: 0 };
+let ploteditBlobUrl = null;
+let ploteditIsCropperReady = false;
+
 // DOM Elements
 const loginView = document.getElementById('login-view');
 const loginUsernameInput = document.getElementById('login-username');
@@ -36,6 +44,41 @@ const loginErrorText = document.getElementById('login-error-text');
 const logoutBtn = document.getElementById('logout-btn');
 const logoutBtnEditor = document.getElementById('logout-btn-editor');
 const adminUsersBtn = document.getElementById('admin-users-btn');
+
+// DOM Elements for Plot Editing
+const ploteditModal = document.getElementById('plotedit-modal');
+const ploteditCloseBtn = document.getElementById('plotedit-close-btn');
+const ploteditCancelBtn = document.getElementById('plotedit-cancel-btn');
+const ploteditSaveBtn = document.getElementById('plotedit-save-btn');
+const openPloteditBtn = document.getElementById('open-plotedit-btn');
+const ploteditSourceImg = document.getElementById('plotedit-source-img');
+const ploteditPreviewImg = document.getElementById('plotedit-preview-img');
+const ploteditPreviewPlaceholder = document.getElementById('plotedit-preview-placeholder');
+const ploteditPreviewCard = document.getElementById('plotedit-preview-card');
+
+const ploteditRotateLeft = document.getElementById('plotedit-rotate-left');
+const ploteditRotateRight = document.getElementById('plotedit-rotate-right');
+const ploteditReset = document.getElementById('plotedit-reset');
+const ploteditSuggestionChips = document.getElementById('plotedit-suggestion-chips');
+const ploteditSuggestionsBar = document.getElementById('plotedit-suggestions-bar');
+
+const ploteditColorPreview = document.getElementById('plotedit-color-preview');
+const ploteditColorHex = document.getElementById('plotedit-color-hex');
+const ploteditColorPicker = document.getElementById('plotedit-color-picker');
+const ploteditTriggerPicker = document.getElementById('plotedit-trigger-picker');
+const ploteditEyedropper = document.getElementById('plotedit-eyedropper');
+
+const ploteditToleranceSlider = document.getElementById('plotedit-tolerance-slider');
+const ploteditToleranceVal = document.getElementById('plotedit-tolerance-val');
+const ploteditSharpnessSlider = document.getElementById('plotedit-sharpness-slider');
+const ploteditSharpnessVal = document.getElementById('plotedit-sharpness-val');
+const ploteditContrastSlider = document.getElementById('plotedit-contrast-slider');
+const ploteditContrastVal = document.getElementById('plotedit-contrast-val');
+const ploteditBrightnessSlider = document.getElementById('plotedit-brightness-slider');
+const ploteditBrightnessVal = document.getElementById('plotedit-brightness-val');
+const ploteditSaturationSlider = document.getElementById('plotedit-saturation-slider');
+const ploteditSaturationVal = document.getElementById('plotedit-saturation-val');
+const ploteditDimensionInfo = document.getElementById('plotedit-dimension-info');
 
 const homeView = document.getElementById('home-view');
 const editorView = document.getElementById('editor-view');
@@ -735,6 +778,9 @@ function setupEventListeners() {
             cancelDrawing();
         }
     });
+    
+    // Call PlotEdit event listeners setup
+    setupPlotEditEventListeners();
 }
 
 
@@ -783,9 +829,9 @@ function handleFile(file) {
     const formData = new FormData();
     formData.append('image', file);
     
-    showLoader("Uploading image...", "Saving map layout on local server");
+    showLoader("Uploading original layout...", "Analyzing contours and color palettes...");
     
-    authFetch('/api/projects/' + activeProjectId + '/upload-image', {
+    authFetch('/api/projects/' + activeProjectId + '/plotedit/upload-temp', {
         method: 'POST',
         body: formData
     })
@@ -793,24 +839,28 @@ function handleFile(file) {
     .then(data => {
         hideLoader();
         if (data.success) {
-            currentImageFilename = data.filename;
-            mapImage.src = data.url;
-            mapImage.style.display = 'block';
-            fileInfoName.textContent = file.name;
-            fileInfoCard.style.display = 'block';
+            // Clear inputs
+            fileInput.value = '';
             
-            // Enable generation buttons
-            runAiBtn.disabled = false;
-            runCvBtn.disabled = false;
+            // Set state
+            ploteditFilename = data.filename;
+            ploteditCandidates = data.candidates;
+            ploteditImageSize = data.image_size;
             
-            resetView();
-            // Clear current overlays when a new file is uploaded
-            plots = [];
-            decorations = [];
-            selectedPlotId = null;
-            renderSVG();
-            renderPlotsList();
-            updateStats();
+            // Set suggested background color
+            const bgRgb = data.suggested_bg_color;
+            const bgHex = rgbToHex(bgRgb[0], bgRgb[1], bgRgb[2]);
+            updateActiveColor(bgHex);
+            
+            // Set custom preset chip color
+            const customPreset = document.getElementById('plotedit-custom-preset');
+            if (customPreset) {
+                customPreset.setAttribute('data-color', bgHex);
+                customPreset.style.setProperty('--chip-color', bgHex);
+            }
+            
+            // Open Plotedit modal
+            openPlotEditModal(data.filename);
         } else {
             alert("Upload failed: " + data.error);
         }
@@ -818,7 +868,7 @@ function handleFile(file) {
     .catch(err => {
         hideLoader();
         console.error(err);
-        alert("Server error uploading image.");
+        alert("Server error uploading layout image.");
     });
 }
 
@@ -828,6 +878,7 @@ function removeUploadedFile() {
     mapImage.style.display = 'none';
     fileInfoCard.style.display = 'none';
     fileInput.value = '';
+    if (openPloteditBtn) openPloteditBtn.style.display = 'none';
     
     // Disable generation buttons
     runAiBtn.disabled = true;
@@ -2391,6 +2442,7 @@ function showEditorView(projectId) {
                 mapImage.style.display = 'block';
                 fileInfoName.textContent = project.image_filename;
                 fileInfoCard.style.display = 'block';
+                if (openPloteditBtn) openPloteditBtn.style.display = (currentUser && currentUser.role === 'admin') ? 'flex' : 'none';
                 
                 // Enable extraction modes (admin only)
                 runAiBtn.disabled = !(currentUser && currentUser.role === 'admin');
@@ -2399,6 +2451,7 @@ function showEditorView(projectId) {
                 mapImage.src = '';
                 mapImage.style.display = 'none';
                 fileInfoCard.style.display = 'none';
+                if (openPloteditBtn) openPloteditBtn.style.display = 'none';
                 
                 runAiBtn.disabled = true;
                 runCvBtn.disabled = true;
@@ -2868,4 +2921,510 @@ function setupRealTimeUpdates() {
 
 // Trigger script execution
 init();
+
+/* ----------------------------------------------------
+   PLOTEDIT INTEGRATED SERVICE LOGIC
+---------------------------------------------------- */
+
+function setupPlotEditEventListeners() {
+    if (openPloteditBtn) {
+        openPloteditBtn.addEventListener('click', handleLoadExistingMapForEdit);
+    }
+    if (ploteditCloseBtn) {
+        ploteditCloseBtn.addEventListener('click', closePlotEditModal);
+    }
+    if (ploteditCancelBtn) {
+        ploteditCancelBtn.addEventListener('click', closePlotEditModal);
+    }
+    if (ploteditSaveBtn) {
+        ploteditSaveBtn.addEventListener('click', savePlotEditLayout);
+    }
+
+    // Action button controls on cropper
+    if (ploteditRotateLeft) {
+        ploteditRotateLeft.addEventListener('click', () => {
+            if (ploteditCropper) {
+                ploteditCropper.rotate(-90);
+                debouncedPlotEditProcess();
+            }
+        });
+    }
+    if (ploteditRotateRight) {
+        ploteditRotateRight.addEventListener('click', () => {
+            if (ploteditCropper) {
+                ploteditCropper.rotate(90);
+                debouncedPlotEditProcess();
+            }
+        });
+    }
+    if (ploteditReset) {
+        ploteditReset.addEventListener('click', () => {
+            if (ploteditCropper) {
+                ploteditCropper.reset();
+                if (ploteditCandidates && ploteditCandidates.length > 0) {
+                    setPlotEditCropperToCandidate(0);
+                    document.querySelectorAll('#plotedit-modal .suggestion-chip').forEach((c, idx) => {
+                        if (idx === 0) c.classList.add('active');
+                        else c.classList.remove('active');
+                    });
+                }
+                processPlotEditLayout();
+            }
+        });
+    }
+
+    // Color picker
+    if (ploteditColorPicker) {
+        ploteditColorPicker.addEventListener('input', (e) => {
+            const val = e.target.value.toUpperCase();
+            updateActiveColor(val);
+            
+            document.querySelectorAll('#plotedit-modal .preset-chip').forEach(chip => chip.classList.remove('active'));
+            const customPreset = document.getElementById('plotedit-custom-preset');
+            if (customPreset) {
+                customPreset.classList.add('active');
+                customPreset.setAttribute('data-color', val);
+            }
+            debouncedPlotEditProcess();
+        });
+    }
+
+    if (ploteditTriggerPicker) {
+        ploteditTriggerPicker.addEventListener('click', () => {
+            if (ploteditColorPicker) ploteditColorPicker.click();
+        });
+    }
+
+    // Preset chips
+    document.querySelectorAll('#plotedit-modal .preset-chip').forEach(chip => {
+        chip.addEventListener('click', () => {
+            document.querySelectorAll('#plotedit-modal .preset-chip').forEach(c => c.classList.remove('active'));
+            chip.classList.add('active');
+            
+            const color = chip.getAttribute('data-color');
+            if (color !== 'custom') {
+                updateActiveColor(color);
+                debouncedPlotEditProcess();
+            } else {
+                if (ploteditColorPicker) ploteditColorPicker.click();
+            }
+        });
+    });
+
+    // EyeDropper API integration
+    if ('EyeDropper' in window && ploteditEyedropper) {
+        ploteditEyedropper.addEventListener('click', async () => {
+            const eyeDropper = new EyeDropper();
+            try {
+                const result = await eyeDropper.open();
+                const color = result.sRGBHex.toUpperCase();
+                updateActiveColor(color);
+                
+                document.querySelectorAll('#plotedit-modal .preset-chip').forEach(c => c.classList.remove('active'));
+                const customPreset = document.getElementById('plotedit-custom-preset');
+                if (customPreset) {
+                    customPreset.classList.add('active');
+                    customPreset.setAttribute('data-color', color);
+                }
+                processPlotEditLayout();
+            } catch (err) {
+                console.warn("Eyedropper cancelled or failed:", err);
+            }
+        });
+    }
+
+    // Sliders sync
+    if (ploteditToleranceSlider) {
+        ploteditToleranceSlider.addEventListener('input', (e) => {
+            if (ploteditToleranceVal) ploteditToleranceVal.textContent = e.target.value;
+            debouncedPlotEditProcess();
+        });
+    }
+    if (ploteditSharpnessSlider) {
+        ploteditSharpnessSlider.addEventListener('input', (e) => {
+            if (ploteditSharpnessVal) ploteditSharpnessVal.textContent = e.target.value;
+            debouncedPlotEditProcess();
+        });
+    }
+    if (ploteditContrastSlider) {
+        ploteditContrastSlider.addEventListener('input', (e) => {
+            if (ploteditContrastVal) ploteditContrastVal.textContent = e.target.value;
+            debouncedPlotEditProcess();
+        });
+    }
+    if (ploteditBrightnessSlider) {
+        ploteditBrightnessSlider.addEventListener('input', (e) => {
+            if (ploteditBrightnessVal) ploteditBrightnessVal.textContent = e.target.value;
+            debouncedPlotEditProcess();
+        });
+    }
+    if (ploteditSaturationSlider) {
+        ploteditSaturationSlider.addEventListener('input', (e) => {
+            if (ploteditSaturationVal) ploteditSaturationVal.textContent = e.target.value;
+            debouncedPlotEditProcess();
+        });
+    }
+
+    // Upscale switches
+    document.querySelectorAll('input[name="plotedit-upscale"]').forEach(radio => {
+        radio.addEventListener('change', () => {
+            processPlotEditLayout();
+        });
+    });
+
+    // Format switches
+    document.querySelectorAll('input[name="plotedit-format"]').forEach(radio => {
+        radio.addEventListener('change', () => {
+            processPlotEditLayout();
+        });
+    });
+}
+
+function handleLoadExistingMapForEdit() {
+    if (!activeProjectId) return;
+    
+    showLoader("Loading map layout...", "Fetching existing layout coordinates...");
+    
+    authFetch(`/api/projects/${activeProjectId}/plotedit/load-existing`)
+    .then(res => res.json())
+    .then(data => {
+        hideLoader();
+        if (data.success) {
+            ploteditFilename = data.filename;
+            ploteditCandidates = data.candidates;
+            ploteditImageSize = data.image_size;
+            
+            // Set suggested background color
+            const bgRgb = data.suggested_bg_color;
+            const bgHex = rgbToHex(bgRgb[0], bgRgb[1], bgRgb[2]);
+            updateActiveColor(bgHex);
+            
+            // Set custom preset chip color
+            const customPreset = document.getElementById('plotedit-custom-preset');
+            if (customPreset) {
+                customPreset.setAttribute('data-color', bgHex);
+                customPreset.style.setProperty('--chip-color', bgHex);
+            }
+            
+            openPlotEditModal(data.filename);
+        } else {
+            alert("Could not load original plan: " + data.error);
+        }
+    })
+    .catch(err => {
+        hideLoader();
+        console.error(err);
+        alert("Server error loading original layout image.");
+    });
+}
+
+function openPlotEditModal(filename) {
+    if (ploteditModal) {
+        ploteditModal.style.display = 'flex';
+        ploteditModal.classList.add('active');
+    }
+    
+    // Destroy previous cropper if exists
+    if (ploteditCropper) {
+        ploteditCropper.destroy();
+        ploteditCropper = null;
+    }
+    ploteditIsCropperReady = false;
+
+    if (ploteditSourceImg) {
+        ploteditSourceImg.onload = () => {
+            ploteditCropper = new Cropper(ploteditSourceImg, {
+                viewMode: 1,
+                dragMode: 'move',
+                autoCropArea: 0.9,
+                restore: false,
+                responsive: true,
+                modal: true,
+                guides: true,
+                highlight: true,
+                cropBoxMovable: true,
+                cropBoxResizable: true,
+                toggleDragModeOnDblclick: false,
+                ready() {
+                    ploteditIsCropperReady = true;
+                    if (ploteditCandidates && ploteditCandidates.length > 0) {
+                        setPlotEditCropperToCandidate(0);
+                    }
+                    renderPlotEditSuggestionChips();
+                    processPlotEditLayout();
+                },
+                cropend() {
+                    if (ploteditIsCropperReady) {
+                        debouncedPlotEditProcess();
+                    }
+                },
+                zoom() {
+                    if (ploteditIsCropperReady) {
+                        debouncedPlotEditProcess();
+                    }
+                }
+            });
+        };
+        ploteditSourceImg.src = `/uploads/${filename}?t=${Date.now()}`;
+    }
+}
+
+function closePlotEditModal() {
+    if (ploteditModal) {
+        ploteditModal.style.display = 'none';
+        ploteditModal.classList.remove('active');
+    }
+    if (ploteditCropper) {
+        ploteditCropper.destroy();
+        ploteditCropper = null;
+    }
+    ploteditIsCropperReady = false;
+    ploteditFilename = null;
+    ploteditCandidates = [];
+    if (ploteditBlobUrl) {
+        URL.revokeObjectURL(ploteditBlobUrl);
+        ploteditBlobUrl = null;
+    }
+}
+
+function renderPlotEditSuggestionChips() {
+    if (!ploteditSuggestionChips) return;
+    ploteditSuggestionChips.innerHTML = '';
+    
+    if (!ploteditCandidates || ploteditCandidates.length === 0) {
+        if (ploteditSuggestionsBar) ploteditSuggestionsBar.style.display = 'none';
+        return;
+    }
+    
+    if (ploteditSuggestionsBar) ploteditSuggestionsBar.style.display = 'flex';
+    
+    ploteditCandidates.forEach((cand, idx) => {
+        const isDefault = idx === 0;
+        const chip = document.createElement('button');
+        chip.className = `suggestion-chip ${isDefault ? 'active' : ''}`;
+        
+        let label = cand.label || `Layout Area ${idx + 1}`;
+        if (isDefault && !cand.label) label += " (Main)";
+        
+        chip.innerHTML = `<i class="fa-solid fa-expand"></i> ${label}`;
+        chip.addEventListener('click', () => {
+            document.querySelectorAll('#plotedit-modal .suggestion-chip').forEach(c => c.classList.remove('active'));
+            chip.classList.add('active');
+            setPlotEditCropperToCandidate(idx);
+            processPlotEditLayout();
+        });
+        ploteditSuggestionChips.appendChild(chip);
+    });
+}
+
+function setPlotEditCropperToCandidate(index) {
+    if (!ploteditCropper || !ploteditCandidates[index]) return;
+    const cand = ploteditCandidates[index];
+    ploteditCropper.setData({
+        x: cand.x,
+        y: cand.y,
+        width: cand.width,
+        height: cand.height,
+        rotate: 0,
+        scaleX: 1,
+        scaleY: 1
+    });
+}
+
+// Debounce wrapper
+function ploteditDebounce(func, wait) {
+    let timeout;
+    return function(...args) {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func.apply(this, args), wait);
+    };
+}
+const debouncedPlotEditProcess = ploteditDebounce(processPlotEditLayout, 300);
+
+async function processPlotEditLayout() {
+    if (!ploteditFilename || !ploteditCropper || !ploteditIsCropperReady) return;
+
+    if (ploteditPreviewPlaceholder) ploteditPreviewPlaceholder.classList.add('active');
+    if (ploteditPreviewImg) ploteditPreviewImg.style.display = 'none';
+    if (ploteditSaveBtn) ploteditSaveBtn.disabled = true;
+
+    const cropData = ploteditCropper.getData(true);
+    const hexColor = ploteditColorPicker ? ploteditColorPicker.value : '#B5D38A';
+    const bgRgb = hexToRgb(hexColor);
+    
+    const tolerance = ploteditToleranceSlider ? ploteditToleranceSlider.value : 30;
+    
+    let format = 'png';
+    document.querySelectorAll('input[name="plotedit-format"]').forEach(radio => {
+        if (radio.checked) format = radio.value;
+    });
+
+    let upscale = 1.0;
+    document.querySelectorAll('input[name="plotedit-upscale"]').forEach(radio => {
+        if (radio.checked) upscale = parseFloat(radio.value);
+    });
+
+    const sharpness = ploteditSharpnessSlider ? parseInt(ploteditSharpnessSlider.value) : 0;
+    const contrast = ploteditContrastSlider ? parseInt(ploteditContrastSlider.value) : 0;
+    const brightness = ploteditBrightnessSlider ? parseInt(ploteditBrightnessSlider.value) : 0;
+    const saturation = ploteditSaturationSlider ? parseFloat(ploteditSaturationSlider.value) : 1.0;
+
+    const payload = {
+        filename: ploteditFilename,
+        x: cropData.x,
+        y: cropData.y,
+        width: cropData.width,
+        height: cropData.height,
+        bg_color: bgRgb,
+        tolerance: tolerance,
+        format: format,
+        brightness: brightness,
+        contrast: contrast,
+        sharpness: sharpness,
+        saturation: saturation,
+        upscale: upscale
+    };
+
+    try {
+        const response = await authFetch(`/api/projects/${activeProjectId}/plotedit/process`, {
+            method: 'POST',
+            body: payload
+        });
+
+        if (response.ok) {
+            const blob = await response.blob();
+            if (ploteditBlobUrl) {
+                URL.revokeObjectURL(ploteditBlobUrl);
+            }
+            ploteditBlobUrl = URL.createObjectURL(blob);
+            
+            if (ploteditPreviewImg) {
+                ploteditPreviewImg.onload = () => {
+                    if (ploteditPreviewPlaceholder) ploteditPreviewPlaceholder.classList.remove('active');
+                    ploteditPreviewImg.style.display = 'block';
+                    if (ploteditSaveBtn) ploteditSaveBtn.disabled = false;
+                    
+                    if (ploteditDimensionInfo) {
+                        ploteditDimensionInfo.textContent = `${ploteditPreviewImg.naturalWidth} × ${ploteditPreviewImg.naturalHeight} px`;
+                    }
+                };
+                ploteditPreviewImg.src = ploteditBlobUrl;
+            }
+        } else {
+            const errObj = await response.json();
+            console.error("Processing failed", errObj.error);
+            if (ploteditPreviewPlaceholder) {
+                ploteditPreviewPlaceholder.innerHTML = `<i class="fa-solid fa-circle-exclamation text-danger"></i><p>Process Error: ${errObj.error}</p>`;
+            }
+        }
+    } catch (e) {
+        console.error(e);
+        if (ploteditPreviewPlaceholder) {
+            ploteditPreviewPlaceholder.innerHTML = `<i class="fa-solid fa-circle-exclamation text-danger"></i><p>Network Error</p>`;
+        }
+    }
+}
+
+async function savePlotEditLayout() {
+    if (!ploteditFilename || !ploteditCropper || !ploteditIsCropperReady) return;
+    
+    showLoader("Saving plan...", "Applying enhancements and archiving map layout...");
+    
+    const cropData = ploteditCropper.getData(true);
+    const hexColor = ploteditColorPicker ? ploteditColorPicker.value : '#B5D38A';
+    const bgRgb = hexToRgb(hexColor);
+    const tolerance = ploteditToleranceSlider ? ploteditToleranceSlider.value : 30;
+    
+    let format = 'png';
+    document.querySelectorAll('input[name="plotedit-format"]').forEach(radio => {
+        if (radio.checked) format = radio.value;
+    });
+
+    let upscale = 1.0;
+    document.querySelectorAll('input[name="plotedit-upscale"]').forEach(radio => {
+        if (radio.checked) upscale = parseFloat(radio.value);
+    });
+
+    const sharpness = ploteditSharpnessSlider ? parseInt(ploteditSharpnessSlider.value) : 0;
+    const contrast = ploteditContrastSlider ? parseInt(ploteditContrastSlider.value) : 0;
+    const brightness = ploteditBrightnessSlider ? parseInt(ploteditBrightnessSlider.value) : 0;
+    const saturation = ploteditSaturationSlider ? parseFloat(ploteditSaturationSlider.value) : 1.0;
+
+    const payload = {
+        filename: ploteditFilename,
+        x: cropData.x,
+        y: cropData.y,
+        width: cropData.width,
+        height: cropData.height,
+        bg_color: bgRgb,
+        tolerance: tolerance,
+        format: format,
+        brightness: brightness,
+        contrast: contrast,
+        sharpness: sharpness,
+        saturation: saturation,
+        upscale: upscale
+    };
+
+    try {
+        const response = await authFetch(`/api/projects/${activeProjectId}/plotedit/save`, {
+            method: 'POST',
+            body: payload
+        });
+        
+        const data = await response.json();
+        hideLoader();
+        
+        if (data.success) {
+            currentImageFilename = data.filename;
+            mapImage.src = data.url;
+            mapImage.style.display = 'block';
+            fileInfoName.textContent = data.filename;
+            fileInfoCard.style.display = 'block';
+            if (openPloteditBtn) openPloteditBtn.style.display = 'flex';
+            
+            // Enable generation buttons
+            runAiBtn.disabled = false;
+            runCvBtn.disabled = false;
+            
+            resetView();
+            plots = [];
+            decorations = [];
+            selectedPlotId = null;
+            renderSVG();
+            renderPlotsList();
+            updateStats();
+            
+            closePlotEditModal();
+        } else {
+            alert("Failed to save layout: " + data.error);
+        }
+    } catch (err) {
+        hideLoader();
+        console.error(err);
+        alert("Server error saving cropped layout plan.");
+    }
+}
+
+function updateActiveColor(hex) {
+    if (ploteditColorPicker) ploteditColorPicker.value = hex;
+    if (ploteditColorHex) ploteditColorHex.value = hex.toUpperCase();
+    if (ploteditColorPreview) ploteditColorPreview.style.backgroundColor = hex;
+}
+
+// Utility Color Conversions
+function hexToRgb(hex) {
+    const shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
+    hex = hex.replace(shorthandRegex, (m, r, g, b) => r + r + g + g + b + b);
+    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result ? [
+        parseInt(result[1], 16),
+        parseInt(result[2], 16),
+        parseInt(result[3], 16)
+    ] : null;
+}
+
+function rgbToHex(r, g, b) {
+    return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+}
 
