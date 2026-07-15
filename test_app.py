@@ -177,6 +177,68 @@ class RealEstateAppTests(unittest.TestCase):
             self.assertEqual(dec_polygon[0], [78.0, 5.0])
             self.assertEqual(dec_polygon[2], [80.0, 85.0])
 
+    def test_detect_ai_polygon_coordinate_normalization(self):
+        from unittest.mock import patch, MagicMock
+        
+        mock_response_check = MagicMock()
+        mock_response_check.text = "NO"
+        
+        mock_response_detect = MagicMock()
+        mock_response_detect.text = json.dumps({
+            "plots": [
+                {"plot_number": "88", "size": "30x40", "area": "1200 SQFT", "polygon": [[450.0, 150.0], [600.0, 150.0], [600.0, 250.0], [450.0, 250.0]]}
+            ],
+            "decorations": [
+                {"type": "road", "label": "MAIN ROAD", "polygon": [[780.0, 50.0], [800.0, 50.0], [800.0, 850.0], [780.0, 850.0]]}
+            ]
+        })
+        
+        with patch('google.generativeai.GenerativeModel.generate_content') as mock_gen:
+            mock_gen.side_effect = [mock_response_check, mock_response_detect]
+            
+            response = self.client.post('/api/detect-ai',
+                data=json.dumps({"filename": "sample_layout.jpg", "api_key": "fake_key"}),
+                content_type='application/json',
+                headers={"X-User-Token": "user_admin"}
+            )
+            
+            self.assertEqual(response.status_code, 200)
+            data = json.loads(response.data)
+            self.assertTrue(data["success"])
+            
+            plots = data["plots"]
+            self.assertEqual(len(plots), 1)
+            self.assertEqual(plots[0]["plot_number"], "88")
+            polygon = plots[0]["polygon"]
+            self.assertEqual(polygon[0], [45.0, 15.0])
+            self.assertEqual(polygon[2], [60.0, 25.0])
+
+    def test_detect_ai_fallback_on_api_failure(self):
+        from unittest.mock import patch, MagicMock
+        
+        mock_response_detect = MagicMock()
+        mock_response_detect.text = json.dumps({
+            "plots": [
+                {"plot_number": "12", "size": "30x40", "area": "1200 SQFT", "polygon": [[45.0, 15.0], [60.0, 15.0], [60.0, 25.0], [45.0, 25.0]]}
+            ],
+            "decorations": []
+        })
+        
+        with patch('google.generativeai.GenerativeModel.generate_content') as mock_gen:
+            mock_gen.side_effect = [Exception("API Timeout"), mock_response_detect]
+            
+            response = self.client.post('/api/detect-ai',
+                data=json.dumps({"filename": "sample_layout.jpg", "api_key": "fake_key"}),
+                content_type='application/json',
+                headers={"X-User-Token": "user_admin"}
+            )
+            
+            self.assertEqual(response.status_code, 200)
+            data = json.loads(response.data)
+            self.assertTrue(data["success"])
+            self.assertEqual(len(data["plots"]), 1)
+            self.assertEqual(data["plots"][0]["plot_number"], "12")
+
     def test_plotedit_flow(self):
         # 1. Create a project
         proj_response = self.client.post(
@@ -219,7 +281,8 @@ class RealEstateAppTests(unittest.TestCase):
                 "bg_color": [181, 211, 138],
                 "tolerance": 30,
                 "format": "png",
-                "upscale": 1.0
+                "upscale": 1.0,
+                "rotate": 90
             }),
             content_type='application/json',
             headers={"X-User-Token": "user_admin"}
@@ -239,7 +302,8 @@ class RealEstateAppTests(unittest.TestCase):
                 "bg_color": [181, 211, 138],
                 "tolerance": 30,
                 "format": "png",
-                "upscale": 1.0
+                "upscale": 1.0,
+                "rotate": 90
             }),
             content_type='application/json',
             headers={"X-User-Token": "user_admin"}
@@ -258,6 +322,53 @@ class RealEstateAppTests(unittest.TestCase):
         load_data = json.loads(load_response.data)
         self.assertTrue(load_data["success"])
         self.assertIn("raw_layout_", load_data["filename"])
+
+    def test_detect_cv_with_custom_parameters(self):
+        # 1. Create a project
+        proj_response = self.client.post(
+            '/api/projects/new',
+            data=json.dumps({"name": "CV Custom Params Plan"}),
+            content_type='application/json',
+            headers={"X-User-Token": "user_admin"}
+        )
+        self.assertEqual(proj_response.status_code, 200)
+        proj_data = json.loads(proj_response.data)
+        project_id = proj_data["project"]["id"]
+
+        # 2. Upload a layout temp image
+        import io
+        from PIL import Image
+        img_file = io.BytesIO()
+        Image.new('RGB', (100, 100), color=(255, 255, 255)).save(img_file, 'JPEG')
+        img_file.seek(0)
+        
+        upload_response = self.client.post(
+            f'/api/projects/{project_id}/plotedit/upload-temp',
+            data={'image': (img_file, 'test_cv_image.jpg')},
+            content_type='multipart/form-data',
+            headers={"X-User-Token": "user_admin"}
+        )
+        self.assertEqual(upload_response.status_code, 200)
+        upload_data = json.loads(upload_response.data)
+        temp_filename = upload_data["filename"]
+
+        # 3. Call detect-cv with custom parameters
+        response = self.client.post(
+            '/api/detect-cv',
+            data=json.dumps({
+                "filename": temp_filename,
+                "min_area_ratio": 0.001,
+                "max_area_ratio": 0.05,
+                "epsilon_ratio": 0.03,
+                "solidity_threshold": 0.80
+            }),
+            content_type='application/json',
+            headers={"X-User-Token": "user_admin"}
+        )
+        
+        self.assertEqual(response.status_code, 200)
+        data = json.loads(response.data)
+        self.assertTrue(data["success"])
 
 if __name__ == '__main__':
     unittest.main()

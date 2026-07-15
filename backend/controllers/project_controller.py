@@ -677,6 +677,12 @@ def detect_cv():
     filename = data.get('filename', 'uploaded_layout.jpg')
     filepath = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
     
+    # Parse dynamic CV parameters
+    min_area_ratio = float(data.get('min_area_ratio', 0.0005))
+    max_area_ratio = float(data.get('max_area_ratio', 0.08))
+    epsilon_ratio = float(data.get('epsilon_ratio', 0.02))
+    solidity_threshold = float(data.get('solidity_threshold', 0.70))
+    
     if not os.path.exists(filepath):
         filepath = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', 'static', 'sample_layout.jpg')
         if not os.path.exists(filepath):
@@ -698,14 +704,14 @@ def detect_cv():
         closed = cv2.morphologyEx(thresh, cv2.MORPH_CLOSE, kernel)
         contours, hierarchy = cv2.findContours(closed, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
         
-        min_area = (w * h) * 0.0005
-        max_area = (w * h) * 0.08
+        min_area = (w * h) * min_area_ratio
+        max_area = (w * h) * max_area_ratio
         
         candidates = []
         for i, cnt in enumerate(contours):
             area = cv2.contourArea(cnt)
             if min_area < area < max_area:
-                epsilon = 0.02 * cv2.arcLength(cnt, True)
+                epsilon = epsilon_ratio * cv2.arcLength(cnt, True)
                 approx = cv2.approxPolyDP(cnt, epsilon, True)
                 if 4 <= len(approx) <= 10:
                     # Shape filters: aspect ratio & solidity
@@ -717,7 +723,7 @@ def detect_cv():
                     hull = cv2.convexHull(cnt)
                     hull_area = cv2.contourArea(hull)
                     solidity = float(area) / hull_area if hull_area > 0 else 0
-                    if solidity < 0.70:
+                    if solidity < solidity_threshold:
                         continue
                         
                     candidates.append((i, cnt, approx, area))
@@ -978,7 +984,6 @@ def detect_ai():
     try:
         genai.configure(api_key=api_key)
         img = Image.open(filepath)
-        
         is_tekadi = False
         try:
             check_prompt = "Identify if this real estate layout map is for 'TEKADI', 'CHIMUR', or 'ARYA INFRA'. Answer STRICTLY with 'YES' or 'NO'."
@@ -986,8 +991,8 @@ def detect_ai():
             check_response = model.generate_content([img, check_prompt])
             is_tekadi = "yes" in check_response.text.strip().lower()
         except Exception as api_err:
-            print(f"Gemini API check failed ({str(api_err)}), defaulting to templates.")
-            is_tekadi = True
+            print(f"Gemini API check failed ({str(api_err)}), falling back to dynamic AI extraction.")
+            is_tekadi = False
             
         if is_tekadi:
             map_data_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', 'static', 'map_data.json')
@@ -999,7 +1004,8 @@ def detect_ai():
                     "plots": map_data["plots"],
                     "decorations": map_data["decorations"]
                 })
-                       # Instruct Gemini to extract coordinates and details dynamically
+        
+        # Instruct Gemini to extract coordinates and details dynamically
         prompt = """
         You are an advanced Real Estate Map digitizer. Analyze the uploaded layout plan.
         Your task is to identify:
@@ -1008,24 +1014,33 @@ def detect_ai():
            - "plot_number" (e.g. "01", "24")
            - "size" (e.g. "30'0\" X 100'0\"")
            - "area" (e.g. "3000.00 SQFT")
-           - "bbox": Normalized 2D bounding box outline coordinates [ymin, xmin, ymax, xmax] from 0 to 100 relative to image height and width.
+           - "polygon": A list of 2D coordinate vertices [[x1, y1], [x2, y2], [x3, y3], [x4, y4], ...] representing the boundary shape of the plot, normalized from 0 to 100 relative to image width and height (where x is percent of width, y is percent of height). For rectangular plots, specify 4 corner vertices. For irregular shapes, specify all vertices outlining the boundary.
         2. All key roads, parks, open spaces, amenities, or site boundaries:
            For each item, extract:
            - "type": Classify into "road", "park", "garden", "open_space", "amenity", or "site_boundary".
            - "label": Name or label of the feature (e.g. "9.00 M. Wide Road", "Open Space").
-           - "bbox": Normalized 2D bounding box outline coordinates [ymin, xmin, ymax, xmax] from 0 to 100 relative to image height and width.
+           - "polygon": A list of 2D coordinate vertices [[x1, y1], [x2, y2], [x3, y3], [x4, y4], ...] representing the outline, normalized from 0 to 100 relative to image width and height.
 
          Respond STRICTLY with a valid JSON object format containing two keys: "plots" and "decorations".
         Example response format:
         {
           "plots": [
-            {"plot_number": "01", "size": "30'0\" X 100'0\"", "area": "3000 SQFT", "bbox": [15.2, 45.1, 25.4, 60.5]}
+            {
+              "plot_number": "01", 
+              "size": "30'0\" X 100'0\"", 
+              "area": "3000 SQFT", 
+              "polygon": [[45.1, 15.2], [60.5, 15.2], [60.5, 25.4], [45.1, 25.4]]
+            }
           ],
           "decorations": [
-            {"type": "road", "label": "9.00 M. WIDE ROAD", "bbox": [5.0, 78.0, 85.0, 80.0]}
+            {
+              "type": "road", 
+              "label": "9.00 M. WIDE ROAD", 
+              "polygon": [[78.0, 5.0], [80.0, 5.0], [80.0, 85.0], [78.0, 85.0]]
+            }
           ]
         }
-        """""
+        """
         model = genai.GenerativeModel('gemini-2.5-flash')
         response = model.generate_content(
             contents=[img, prompt],
@@ -1045,19 +1060,38 @@ def detect_ai():
         # Collect all coordinate values to determine the scale
         all_coords = []
         for p in detected_plots:
-            bbox = p.get("bbox")
-            if bbox and len(bbox) == 4:
-                try:
-                    all_coords.extend([float(v) for v in bbox])
-                except (ValueError, TypeError):
-                    pass
+            poly = p.get("polygon")
+            if poly and isinstance(poly, list):
+                for pt in poly:
+                    if isinstance(pt, list) and len(pt) == 2:
+                        try:
+                            all_coords.extend([float(pt[0]), float(pt[1])])
+                        except (ValueError, TypeError):
+                            pass
+            else:
+                bbox = p.get("bbox")
+                if bbox and len(bbox) == 4:
+                    try:
+                        all_coords.extend([float(v) for v in bbox])
+                    except (ValueError, TypeError):
+                        pass
+
         for d in detected_decorations:
-            bbox = d.get("bbox")
-            if bbox and len(bbox) == 4:
-                try:
-                    all_coords.extend([float(v) for v in bbox])
-                except (ValueError, TypeError):
-                    pass
+            poly = d.get("polygon")
+            if poly and isinstance(poly, list):
+                for pt in poly:
+                    if isinstance(pt, list) and len(pt) == 2:
+                        try:
+                            all_coords.extend([float(pt[0]), float(pt[1])])
+                        except (ValueError, TypeError):
+                            pass
+            else:
+                bbox = d.get("bbox")
+                if bbox and len(bbox) == 4:
+                    try:
+                        all_coords.extend([float(v) for v in bbox])
+                    except (ValueError, TypeError):
+                        pass
 
         # Determine scale factor dynamically to map coordinates to [0, 100]
         scale_factor = 1.0
@@ -1079,15 +1113,27 @@ def detect_ai():
             if not plot_num:
                 continue
                 
-            bbox = p.get("bbox")
-            if bbox and len(bbox) == 4:
+            poly = p.get("polygon")
+            if poly and isinstance(poly, list):
                 try:
-                    ymin, xmin, ymax, xmax = [float(v) * scale_factor for v in bbox]
-                    polygon = [[xmin, ymin], [xmax, ymin], [xmax, ymax], [xmin, ymax]]
+                    polygon = []
+                    for pt in poly:
+                        if isinstance(pt, list) and len(pt) == 2:
+                            polygon.append([float(pt[0]) * scale_factor, float(pt[1]) * scale_factor])
+                    if not polygon:
+                        polygon = [[10.0, 10.0], [20.0, 10.0], [20.0, 20.0], [10.0, 20.0]]
                 except (ValueError, TypeError):
                     polygon = [[10.0, 10.0], [20.0, 10.0], [20.0, 20.0], [10.0, 20.0]]
             else:
-                polygon = [[10.0, 10.0], [20.0, 10.0], [20.0, 20.0], [10.0, 20.0]]
+                bbox = p.get("bbox")
+                if bbox and len(bbox) == 4:
+                    try:
+                        ymin, xmin, ymax, xmax = [float(v) * scale_factor for v in bbox]
+                        polygon = [[xmin, ymin], [xmax, ymin], [xmax, ymax], [xmin, ymax]]
+                    except (ValueError, TypeError):
+                        polygon = [[10.0, 10.0], [20.0, 10.0], [20.0, 20.0], [10.0, 20.0]]
+                else:
+                    polygon = [[10.0, 10.0], [20.0, 10.0], [20.0, 20.0], [10.0, 20.0]]
                 
             final_plots.append({
                 "id": f"plot_{plot_num}",
@@ -1102,15 +1148,27 @@ def detect_ai():
             
         final_decorations = []
         for d in detected_decorations:
-            bbox = d.get("bbox")
-            if bbox and len(bbox) == 4:
+            poly = d.get("polygon")
+            if poly and isinstance(poly, list):
                 try:
-                    ymin, xmin, ymax, xmax = [float(v) * scale_factor for v in bbox]
-                    polygon = [[xmin, ymin], [xmax, ymin], [xmax, ymax], [xmin, ymax]]
+                    polygon = []
+                    for pt in poly:
+                        if isinstance(pt, list) and len(pt) == 2:
+                            polygon.append([float(pt[0]) * scale_factor, float(pt[1]) * scale_factor])
+                    if not polygon:
+                        continue
                 except (ValueError, TypeError):
                     continue
             else:
-                continue
+                bbox = d.get("bbox")
+                if bbox and len(bbox) == 4:
+                    try:
+                        ymin, xmin, ymax, xmax = [float(v) * scale_factor for v in bbox]
+                        polygon = [[xmin, ymin], [xmax, ymin], [xmax, ymax], [xmin, ymax]]
+                    except (ValueError, TypeError):
+                        continue
+                else:
+                    continue
                 
             final_decorations.append({
                 "type": d.get("type", "road"),
@@ -1492,6 +1550,7 @@ def api_plotedit_process(project_id):
     sharpness = data.get('sharpness', 0)
     saturation = data.get('saturation', 1.0)
     upscale = data.get('upscale', 1.0)
+    rotate = data.get('rotate', 0)
 
     if not filename:
         return jsonify({'success': False, 'error': 'Missing filename parameter'}), 400
@@ -1515,6 +1574,7 @@ def api_plotedit_process(project_id):
         sharpness = int(sharpness)
         saturation = float(saturation)
         upscale = float(upscale)
+        rotate_int = int(float(rotate)) if rotate is not None else 0
         
         pil_img = extract_plot_map(
             image_path=filepath,
@@ -1529,7 +1589,8 @@ def api_plotedit_process(project_id):
             sharpness=sharpness,
             saturation=saturation,
             upscale=upscale,
-            output_format=output_format
+            output_format=output_format,
+            rotate=rotate_int
         )
         
         img_io = io.BytesIO()
@@ -1569,6 +1630,7 @@ def api_plotedit_save(project_id):
     sharpness = data.get('sharpness', 0)
     saturation = data.get('saturation', 1.0)
     upscale = data.get('upscale', 1.0)
+    rotate = data.get('rotate', 0)
 
     if not filename:
         return jsonify({'success': False, 'error': 'Missing filename parameter'}), 400
@@ -1601,6 +1663,7 @@ def api_plotedit_save(project_id):
         sharpness = int(sharpness)
         saturation = float(saturation)
         upscale = float(upscale)
+        rotate_int = int(float(rotate)) if rotate is not None else 0
         
         pil_img = extract_plot_map(
             image_path=filepath,
@@ -1615,7 +1678,8 @@ def api_plotedit_save(project_id):
             sharpness=sharpness,
             saturation=saturation,
             upscale=upscale,
-            output_format=output_format
+            output_format=output_format,
+            rotate=rotate_int
         )
         
         dest_filename = f"layout_{project_id}.{output_format}"

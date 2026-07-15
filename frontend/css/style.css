@@ -1000,32 +1000,36 @@ polygon.amenity {
 
 .home-hero {
     text-align: center;
-    padding: 4rem 1.5rem 2rem 1.5rem;
+    padding: 2rem 1.5rem 1rem 1.5rem;
     max-width: 800px;
     margin: 0 auto;
 }
 
 .home-hero h2 {
-    font-size: 2.5rem;
+    font-size: 1.8rem;
     font-weight: 800;
     letter-spacing: -1px;
     background: linear-gradient(135deg, #a5b4fc, var(--primary));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
-    margin-bottom: 0.85rem;
+    margin-bottom: 0.5rem;
 }
 
 .home-hero p {
     color: var(--text-muted);
-    font-size: 1.05rem;
+    font-size: 0.9rem;
     line-height: 1.6;
 }
 
 .home-search-container {
     display: flex;
     justify-content: center;
-    margin-bottom: 3rem;
-    padding: 0 1.5rem;
+    margin-bottom: 1.5rem;
+    padding: 0 3rem;
+    max-width: 1800px;
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .home-search-bar {
@@ -1053,13 +1057,14 @@ polygon.amenity {
     font-size: 0.95rem;
     font-family: inherit;
     outline: none;
-    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 0.25s ease;
+    box-shadow: var(--card-shadow);
 }
 
 .home-search-bar input:focus {
     border-color: var(--primary);
-    background-color: rgba(22, 28, 45, 0.95);
-    box-shadow: 0 0 0 4px var(--primary-glow);
+    box-shadow: 0 0 0 3px var(--primary-glow), var(--card-shadow);
+    background-color: rgba(22, 28, 45, 0.85);
 }
 
 .project-grid {
@@ -1069,7 +1074,7 @@ polygon.amenity {
     padding: 0 3rem 3rem 3rem;
     overflow-y: auto;
     flex: 1;
-    max-width: 1400px;
+    max-width: 1800px;
     width: 100%;
     margin: 0 auto;
 }

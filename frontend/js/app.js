@@ -209,6 +209,29 @@ const confirmCancelBtn = document.getElementById('confirm-cancel-btn');
 const confirmProceedBtn = document.getElementById('confirm-proceed-btn');
 let confirmCallback = null;
 
+// Custom Prompt Modal elements
+const promptModal = document.getElementById('prompt-modal');
+const promptModalTitle = document.getElementById('prompt-modal-title');
+const promptModalLabel = document.getElementById('prompt-modal-label');
+const promptModalInput = document.getElementById('prompt-modal-input');
+const promptCancelBtn = document.getElementById('prompt-cancel-btn');
+const promptSubmitBtn = document.getElementById('prompt-submit-btn');
+
+// CV Advanced settings elements
+const cvSettingsPanel = document.getElementById('cv-settings-panel');
+const toggleCvSettingsBtn = document.getElementById('toggle-cv-settings-btn');
+const cvSettingsChevron = document.getElementById('cv-settings-chevron');
+const cvSettingsContent = document.getElementById('cv-settings-content');
+
+const cvMinAreaSlider = document.getElementById('cv-min-area-slider');
+const cvMinAreaVal = document.getElementById('cv-min-area-val');
+const cvMaxAreaSlider = document.getElementById('cv-max-area-slider');
+const cvMaxAreaVal = document.getElementById('cv-max-area-val');
+const cvEpsilonSlider = document.getElementById('cv-epsilon-slider');
+const cvEpsilonVal = document.getElementById('cv-epsilon-val');
+const cvSoliditySlider = document.getElementById('cv-solidity-slider');
+const cvSolidityVal = document.getElementById('cv-solidity-val');
+
 const mapTooltip = document.getElementById('map-tooltip');
 
 // Agent Manager modal elements
@@ -660,6 +683,37 @@ function setupEventListeners() {
     // Processing triggers
     runCvBtn.addEventListener('click', triggerLocalCvDetection);
     runAiBtn.addEventListener('click', triggerAiDetection);
+
+    // CV Settings accordion toggle
+    if (toggleCvSettingsBtn) {
+        toggleCvSettingsBtn.addEventListener('click', () => {
+            const isHidden = cvSettingsContent.style.display === 'none';
+            cvSettingsContent.style.display = isHidden ? 'flex' : 'none';
+            cvSettingsChevron.style.transform = isHidden ? 'rotate(180deg)' : 'rotate(0deg)';
+        });
+    }
+
+    // CV sliders value displays update
+    if (cvMinAreaSlider) {
+        cvMinAreaSlider.addEventListener('input', (e) => {
+            cvMinAreaVal.textContent = e.target.value + '%';
+        });
+    }
+    if (cvMaxAreaSlider) {
+        cvMaxAreaSlider.addEventListener('input', (e) => {
+            cvMaxAreaVal.textContent = e.target.value + '%';
+        });
+    }
+    if (cvEpsilonSlider) {
+        cvEpsilonSlider.addEventListener('input', (e) => {
+            cvEpsilonVal.textContent = e.target.value;
+        });
+    }
+    if (cvSoliditySlider) {
+        cvSoliditySlider.addEventListener('input', (e) => {
+            cvSolidityVal.textContent = e.target.value;
+        });
+    }
     
     // Tool buttons triggers
     toolSelect.addEventListener('click', () => setTool('select'));
@@ -883,6 +937,7 @@ function removeUploadedFile() {
     // Disable generation buttons
     runAiBtn.disabled = true;
     runCvBtn.disabled = true;
+    if (cvSettingsPanel) cvSettingsPanel.style.display = 'none';
     
     plots = [];
     decorations = [];
@@ -978,9 +1033,20 @@ function triggerLocalCvDetection() {
     
     showLoader("Computer Vision Processing...", "Executing contour vector approximation on server...");
     
+    const minArea = cvMinAreaSlider ? parseFloat(cvMinAreaSlider.value) / 100.0 : 0.0005;
+    const maxArea = cvMaxAreaSlider ? parseFloat(cvMaxAreaSlider.value) / 100.0 : 0.08;
+    const epsilon = cvEpsilonSlider ? parseFloat(cvEpsilonSlider.value) : 0.02;
+    const solidity = cvSoliditySlider ? parseFloat(cvSoliditySlider.value) : 0.70;
+
     authFetch('/api/detect-cv', {
         method: 'POST',
-        body: { filename: currentImageFilename }
+        body: { 
+            filename: currentImageFilename,
+            min_area_ratio: minArea,
+            max_area_ratio: maxArea,
+            epsilon_ratio: epsilon,
+            solidity_threshold: solidity
+        }
     })
     .then(res => res.json())
     .then(data => {
@@ -1911,6 +1977,48 @@ function showConfirmation(title, body, callback) {
     confirmModal.classList.add('active');
 }
 
+// Beautiful Custom Prompt Modal Overlay Promise Displayer
+function showPromptModal(title, label, defaultValue = '', placeholder = '') {
+    return new Promise((resolve) => {
+        promptModalTitle.textContent = title;
+        promptModalLabel.textContent = label;
+        promptModalInput.value = defaultValue;
+        promptModalInput.placeholder = placeholder;
+        
+        promptModal.style.display = 'flex';
+        promptModal.classList.add('active');
+        promptModalInput.focus();
+
+        const cleanup = () => {
+            promptModal.style.display = 'none';
+            promptModal.classList.remove('active');
+            promptSubmitBtn.onclick = null;
+            promptCancelBtn.onclick = null;
+            promptModalInput.onkeydown = null;
+        };
+
+        promptSubmitBtn.onclick = () => {
+            const val = promptModalInput.value.trim();
+            cleanup();
+            resolve(val);
+        };
+
+        promptCancelBtn.onclick = () => {
+            cleanup();
+            resolve(null);
+        };
+
+        promptModalInput.onkeydown = (e) => {
+            if (e.key === 'Enter') {
+                promptSubmitBtn.click();
+            } else if (e.key === 'Escape') {
+                promptCancelBtn.click();
+            }
+        };
+    });
+}
+
+
 // Update Map Hover Tooltip
 function updateTooltipContent(plot) {
     const isReserved = plot.status === 'reserved';
@@ -2447,6 +2555,7 @@ function showEditorView(projectId) {
                 // Enable extraction modes (admin only)
                 runAiBtn.disabled = !(currentUser && currentUser.role === 'admin');
                 runCvBtn.disabled = !(currentUser && currentUser.role === 'admin');
+                if (cvSettingsPanel) cvSettingsPanel.style.display = (currentUser && currentUser.role === 'admin') ? 'block' : 'none';
             } else {
                 mapImage.src = '';
                 mapImage.style.display = 'none';
@@ -2455,6 +2564,7 @@ function showEditorView(projectId) {
                 
                 runAiBtn.disabled = true;
                 runCvBtn.disabled = true;
+                if (cvSettingsPanel) cvSettingsPanel.style.display = 'none';
             }
             
             // Apply layout visibility
@@ -2494,8 +2604,8 @@ function showEditorView(projectId) {
 }
 
 // Create new blank project
-function createNewProject() {
-    const name = prompt("Enter a name for the new real estate plan:");
+async function createNewProject() {
+    const name = await showPromptModal("New Real Estate Plan", "Layout Plan Name", "", "e.g., Green Valley Phase 1");
     if (!name || name.trim() === '') return;
     
     showLoader("Creating new plan...", "Initializing empty layout in database");
@@ -2522,7 +2632,7 @@ function createNewProject() {
 }
 
 // Rename active project layout
-function handleProjectRename() {
+async function handleProjectRename() {
     if (!activeProjectId) return;
     if (!currentUser || currentUser.role !== 'admin') {
         alert("Only administrators can rename plan layouts.");
@@ -2530,7 +2640,7 @@ function handleProjectRename() {
     }
     
     const currentName = activeProjectTitle.textContent;
-    const name = prompt("Enter new name for the layout plan:", currentName);
+    const name = await showPromptModal("Rename Plan Layout", "New Layout Name", currentName, "e.g., Updated Sector 4 Plan");
     if (!name || name.trim() === '' || name.trim() === currentName) return;
     
     showLoader("Renaming plan...", "Updating layout catalog name in database");
@@ -3282,7 +3392,8 @@ async function processPlotEditLayout() {
         contrast: contrast,
         sharpness: sharpness,
         saturation: saturation,
-        upscale: upscale
+        upscale: upscale,
+        rotate: cropData.rotate || 0
     };
 
     try {
@@ -3363,7 +3474,8 @@ async function savePlotEditLayout() {
         contrast: contrast,
         sharpness: sharpness,
         saturation: saturation,
-        upscale: upscale
+        upscale: upscale,
+        rotate: cropData.rotate || 0
     };
 
     try {
@@ -3386,6 +3498,7 @@ async function savePlotEditLayout() {
             // Enable generation buttons
             runAiBtn.disabled = false;
             runCvBtn.disabled = false;
+            if (cvSettingsPanel) cvSettingsPanel.style.display = (currentUser && currentUser.role === 'admin') ? 'block' : 'none';
             
             resetView();
             plots = [];

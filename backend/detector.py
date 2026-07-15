@@ -99,7 +99,7 @@ def detect_layout_bbox(image_path):
 
 def extract_plot_map(image_path, x, y, width, height, bg_rgb, tolerance, 
                      brightness=0, contrast=0, sharpness=0, saturation=1.0, upscale=1.0,
-                     output_format='png'):
+                     output_format='png', rotate=0):
     """
     Crops the image to the specified bounding box, applies enhancements (brightness, contrast,
     saturation, sharpening, and scaling), removes the background color, and returns a PIL Image.
@@ -107,6 +107,27 @@ def extract_plot_map(image_path, x, y, width, height, bg_rgb, tolerance,
     img = cv2.imread(image_path)
     if img is None:
         raise ValueError("Could not read image")
+
+    # Rotate the image before cropping if rotate is specified
+    if rotate != 0:
+        angle = rotate % 360
+        if angle == 90:
+            img = cv2.rotate(img, cv2.ROTATE_90_CLOCKWISE)
+        elif angle == 180:
+            img = cv2.rotate(img, cv2.ROTATE_180)
+        elif angle == 270:
+            img = cv2.rotate(img, cv2.ROTATE_90_COUNTERCLOCKWISE)
+        elif angle != 0:
+            h, w = img.shape[:2]
+            cX, cY = w // 2, h // 2
+            M = cv2.getRotationMatrix2D((cX, cY), -rotate, 1.0)
+            cos = np.abs(M[0, 0])
+            sin = np.abs(M[0, 1])
+            nW = int((h * sin) + (w * cos))
+            nH = int((h * cos) + (w * sin))
+            M[0, 2] += (nW / 2) - cX
+            M[1, 2] += (nH / 2) - cY
+            img = cv2.warpAffine(img, M, (nW, nH), borderValue=tuple(map(int, bg_rgb)))
 
     h, w, c = img.shape
 

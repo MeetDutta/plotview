@@ -272,8 +272,11 @@ def generate_layout():
         "decorations": decorations
     }
     
-    os.makedirs("/Users/meet/Desktop/proj 1.1/static", exist_ok=True)
-    out_path = "/Users/meet/Desktop/proj 1.1/static/map_data.json"
+    # Use path relative to this script's directory
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    static_dir = os.path.join(script_dir, "static")
+    os.makedirs(static_dir, exist_ok=True)
+    out_path = os.path.join(static_dir, "map_data.json")
     with open(out_path, "w") as f:
         json.dump(map_data, f, indent=2)
     

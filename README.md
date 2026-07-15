@@ -20,18 +20,12 @@ PlotVision is a web-based interactive map digitizer and management platform tail
   - Automates structural identification of maps.
   - Extracts normalized bounding coordinates, dimensions (size), and calculated areas directly from layout drawings using Google's generative AI models.
 
-### 3. **PlotEdit Layout Optimizer & Preprocessor**
-- **Interactive Cropper.js Interface:** Precision cropping and rotation tool embedded directly in the admin dashboard for alignment.
-- **OpenCV Auto-Crop Scanning:** Analyzes the uploaded layout using computer vision to suggest layout crop boundary boundaries.
-- **Image Filters & Color Correction:** Live adjustment sliders for brightness, contrast, sharpening, and keying/background color removal.
-- **Non-Destructive Backups:** Keeps original, high-resolution un-cropped uploads under `uploads/raw_layout_<id>.<ext>` so admins can re-crop or alter filter properties anytime.
-
-### 4. **Role-Based Access Control (RBAC)**
+### 3. **Role-Based Access Control (RBAC)**
 - **Admins:** Full control over creating/renaming projects, setting system configurations (e.g., Gemini API keys), running AI/CV analysis, modifying plot shapes, and managing user approval workflows.
 - **Agents:** View live project catalogs, request access accounts, and book/reserve plots with customer token amounts and contract details.
 - **Audit Logging & SSE Sync:** Uses Server-Sent Events (SSE) to sync map status changes to all active users in real-time.
 
-### 5. **Utility & Export Subsystems**
+### 4. **Utility & Export Subsystems**
 - **CSV Data Import:** Import plot metadata tables (Plot No., Dimensions, Area) to quickly bind structured details to map coordinates.
 - **Interactive HTML Exporter:** Export the digitized maps as standalone interactive HTML pages (with inline SVGs, style sheets, and search controls) ready for public property portals.
 - **Booking Receipts:** Generate clean, printable PDF/print booking receipts for customers.
@@ -48,7 +42,6 @@ PlotVision is a web-based interactive map digitizer and management platform tail
 
 ### Frontend
 - **HTML5 & CSS3:** Semantic structure styled with a premium dark-mode dashboard (custom "Slate" UI theme, Outfit typography, FontAwesome vector iconography).
-- **Cropper.js:** For responsive, client-side map alignment and cropping interfaces.
 - **Vanilla JavaScript:** High-performance viewport rendering, viewport drag/zoom controls, SVG point manipulation, and SSE communication.
 
 ---
@@ -59,7 +52,6 @@ PlotVision is a web-based interactive map digitizer and management platform tail
 PlotVision/
 ├── backend/
 │   ├── app.py                  # Flask Application Entry point
-│   ├── detector.py             # OpenCV Layout Auto-Crop/Optimizer helper
 │   ├── controllers/            # Blueprints (Auth, User, Request, Project)
 │   └── models/                 # Database schema and SQLite access functions
 ├── frontend/

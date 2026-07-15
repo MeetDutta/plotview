@@ -1,0 +1,2423 @@
+{
+  "plots": [
+    {
+      "id": "plot_81",
+      "plot_number": "81",
+      "size": "1/2X(10.32+11.97)X15.00",
+      "area": "167.18 SQMT (1800 SQFT)",
+      "polygon": [
+        [
+          5.0,
+          5.0
+        ],
+        [
+          13.0,
+          5.0
+        ],
+        [
+          13.0,
+          9.29
+        ],
+        [
+          5.0,
+          9.29
+        ]
+      ],
+      "status": "available",
+      "price": "Market Rate",
+      "notes": "East facing residential plot."
+    },
+    {
+      "id": "plot_48",
+      "plot_number": "48",
+      "size": "1/2X(9.00+10.32)X12.00",
+      "area": "115.92 SQMT (1248 SQFT)",
+      "polygon": [
+        [
+          13.0,
+          5.0
+        ],
+        [
+          21.0,
+          5.0
+        ],
+        [
+          21.0,
+          9.29
+        ],
+        [
+          13.0,
+          9.29
+        ]
+      ],
+      "status": "available",
+      "price": "Market Rate",
+      "notes": "West facing residential plot."
+    },
+    {
+      "id": "plot_80",
+      "plot_number": "80",
+      "size": "9.00X15.00",
+      "area": "135.00 SQMT (1453 SQFT)",
+      "polygon": [
+        [
+          5.0,
+          9.29
+        ],
+        [
+          13.0,
+          9.29
+        ],
+        [
+          13.0,
+          13.59
+        ],
+        [
+          5.0,
+          13.59
+        ]
+      ],
+      "status": "available",
+      "price": "Market Rate",
+      "notes": "East facing residential plot."
+    },
+    {
+      "id": "plot_49",
+      "plot_number": "49",
+      "size": "9.00X12.00",
+      "area": "108.00 SQMT (1163 SQFT)",
+      "polygon": [
+        [
+          13.0,
+          9.29
+        ],
+        [
+          21.0,
+          9.29
+        ],
+        [
+          21.0,
+          13.59
+        ],
+        [
+          13.0,
+          13.59
+        ]
+      ],
+      "status": "available",
+      "price": "Market Rate",
+      "notes": "West facing residential plot."
+    },
+    {
+      "id": "plot_79",
+      "plot_number": "79",
+      "size": "9.00X15.00",
+      "area": "135.00 SQMT (1453 SQFT)",
+      "polygon": [
+        [
+          5.0,
+          13.59
+        ],
+        [
+          13.0,
+          13.59
+        ],
+        [
+          13.0,
+          17.88
+        ],
+        [
+          5.0,
+          17.88
+        ]
+      ],
+      "status": "available",
+      "price": "Market Rate",
+      "notes": "East facing residential plot."
+    },
+    {
+      "id": "plot_50",
+      "plot_number": "50",
+      "size": "9.00X12.00",
+      "area": "108.00 SQMT (1163 SQFT)",
+      "polygon": [
+        [
+          13.0,
+          13.59
+        ],
+        [
+          21.0,
+          13.59
+        ],
+        [
+          21.0,
+          17.88
+        ],
+        [
+          13.0,
+          17.88
+        ]
+      ],
+      "status": "available",
+      "price": "Market Rate",
+      "notes": "West facing residential plot."
+    },
+    {
+      "id": "plot_78",
+      "plot_number": "78",
+      "size": "9.00X15.00",
+      "area": "135.00 SQMT (1453 SQFT)",
+      "polygon": [
+        [
+          5.0,
+          17.88
+        ],
+        [
+          13.0,
+          17.88
+        ],
+        [
+          13.0,
+          22.18
+        ],
+        [
+          5.0,
+          22.18
+        ]
+      ],
+      "status": "available",
+      "price": "Market Rate",
+      "notes": "East facing residential plot."
+    },
+    {
+      "id": "plot_51",
+      "plot_number": "51",
+      "size": "9.00X12.00",
+      "area": "108.00 SQMT (1163 SQFT)",
+      "polygon": [
+        [
+          13.0,
+          17.88
+        ],
+        [
+          21.0,
+          17.88
+        ],
+        [
+          21.0,
+          22.18
+        ],
+        [
+          13.0,
+          22.18
+        ]
+      ],
+      "status": "available",
+      "price": "Market Rate",
+      "notes": "West facing residential plot."
+    },
+    {
+      "id": "plot_77",
+      "plot_number": "77",
+      "size": "9.00X15.00",
+      "area": "135.00 SQMT (1453 SQFT)",
+      "polygon": [
+        [
+          5.0,
+          22.18
+        ],
+        [
+          13.0,
+          22.18
+        ],
+        [
+          13.0,
+          26.47
+        ],
+        [
+          5.0,
+          26.47
+        ]
+      ],
+      "status": "available",
+      "price": "Market Rate",
+      "notes": "East facing residential plot."
+    },
+    {
+      "id": "plot_52",
+      "plot_number": "52",
+      "size": "9.00X12.00",
+      "area": "108.00 SQMT (1163 SQFT)",
+      "polygon": [
+        [
+          13.0,
+          22.18
+        ],
+        [
+          21.0,
+          22.18
+        ],
+        [
+          21.0,
+          26.47
+        ],
+        [
+          13.0,
+          26.47
+        ]
+      ],
+      "status": "available",
+      "price": "Market Rate",
+      "notes": "West facing residential plot."
+    },
+    {
+      "id": "plot_76",
+      "plot_number": "76",
+      "size": "9.00X15.00",
+      "area": "135.00 SQMT (1453 SQFT)",
+      "polygon": [
+        [
+          5.0,
+          26.47
+        ],
+        [
+          13.0,
+          26.47
+        ],
+        [
+          13.0,
+          30.76
+        ],
+        [
+          5.0,
+          30.76
+        ]
+      ],
+      "status": "available",
+      "price": "Market Rate",
+      "notes": "East facing residential plot."
+    },
+    {
+      "id": "plot_53",
+      "plot_number": "53",
+      "size": "9.00X12.00",
+      "area": "108.00 SQMT (1163 SQFT)",
+      "polygon": [
+        [
+          13.0,
+          26.47
+        ],
+        [
+          21.0,
+          26.47
+        ],
+        [
+          21.0,
+          30.76
+        ],
+        [
+          13.0,
+          30.76
+        ]
+      ],
+      "status": "available",
+      "price": "Market Rate",
+      "notes": "West facing residential plot."
+    },
+    {
+      "id": "plot_75",
+      "plot_number": "75",
+      "size": "9.00X15.00",
+      "area": "135.00 SQMT (1453 SQFT)",
+      "polygon": [
+        [
+          5.0,
+          30.76
+        ],
+        [
+          13.0,
+          30.76
+        ],
+        [
+          13.0,
+          35.06
+        ],
+        [
+          5.0,
+          35.06
+        ]
+      ],
+      "status": "available",
+      "price": "Market Rate",
+      "notes": "East facing residential plot."
+    },
+    {
+      "id": "plot_54",
+      "plot_number": "54",
+      "size": "9.00X12.00",
+      "area": "108.00 SQMT (1163 SQFT)",
+      "polygon": [
+        [
+          13.0,
+          30.76
+        ],
+        [
+          21.0,
+          30.76
+        ],
+        [
+          21.0,
+          35.06
+        ],
+        [
+          13.0,
+          35.06
+        ]
+      ],
+      "status": "available",
+      "price": "Market Rate",
+      "notes": "West facing residential plot."
+    },
+    {
+      "id": "plot_74",
+      "plot_number": "74",
+      "size": "9.00X15.00",
+      "area": "135.00 SQMT (1453 SQFT)",
+      "polygon": [
+        [
+          5.0,
+          35.06
+        ],
+        [
+          13.0,
+          35.06
+        ],
+        [
+          13.0,
+          39.35
+        ],
+        [
+          5.0,
+          39.35
+        ]
+      ],
+      "status": "available",
+      "price": "Market Rate",
+      "notes": "East facing residential plot."
+    },
+    {
+      "id": "plot_55",
+      "plot_number": "55",
+      "size": "9.00X12.00",
+      "area": "108.00 SQMT (1163 SQFT)",
+      "polygon": [
+        [
+          13.0,
+          35.06
+        ],
+        [
+          21.0,
+          35.06
+        ],
+        [
+          21.0,
+          39.35
+        ],
+        [
+          13.0,
+          39.35
+        ]
+      ],
+      "status": "available",
+      "price": "Market Rate",
+      "notes": "West facing residential plot."
+    },
+    {
+      "id": "plot_73",
+      "plot_number": "73",
+      "size": "9.00X15.00",
+      "area": "135.00 SQMT (1453 SQFT)",
+      "polygon": [
+        [
+          5.0,
+          39.35
+        ],
+        [
+          13.0,
+          39.35
+        ],
+        [
+          13.0,
+          43.65
+        ],
+        [
+          5.0,
+          43.65
+        ]
+      ],
+      "status": "available",
+      "price": "Market Rate",
+      "notes": "East facing residential plot."
+    },
+    {
+      "id": "plot_56",
+      "plot_number": "56",
+      "size": "9.00X12.00",
+      "area": "108.00 SQMT (1163 SQFT)",
+      "polygon": [
+        [
+          13.0,
+          39.35
+        ],
+        [
+          21.0,
+          39.35
+        ],
+        [
+          21.0,
+          43.65
+        ],
+        [
+          13.0,
+          43.65
+        ]
+      ],
+      "status": "available",
+      "price": "Market Rate",
+      "notes": "West facing residential plot."
+    },
+    {
+      "id": "plot_72",
+      "plot_number": "72",
+      "size": "9.00X15.00",
+      "area": "135.00 SQMT (1453 SQFT)",
+      "polygon": [
+        [
+          5.0,
+          43.65
+        ],
+        [
+          13.0,
+          43.65
+        ],
+        [
+          13.0,
+          47.94
+        ],
+        [
+          5.0,
+          47.94
+        ]
+      ],
+      "status": "available",
+      "price": "Market Rate",
+      "notes": "East facing residential plot."
+    },
+    {
+      "id": "plot_57",
+      "plot_number": "57",
+      "size": "9.00X12.00",
+      "area": "108.00 SQMT (1163 SQFT)",
+      "polygon": [
+        [
+          13.0,
+          43.65
+        ],
+        [
+          21.0,
+          43.65
+        ],
+        [
+          21.0,
+          47.94
+        ],
+        [
+          13.0,
+          47.94
+        ]
+      ],
+      "status": "available",
+      "price": "Market Rate",
+      "notes": "West facing residential plot."
+    },
+    {
+      "id": "plot_71",
+      "plot_number": "71",
+      "size": "9.00X15.00",
+      "area": "135.00 SQMT (1453 SQFT)",
+      "polygon": [
+        [
+          5.0,
+          47.94
+        ],
+        [
+          13.0,
+          47.94
+        ],
+        [
+          13.0,
+          52.24
+        ],
+        [
+          5.0,
+          52.24
+        ]
+      ],
+      "status": "available",
+      "price": "Market Rate",
+      "notes": "East facing residential plot."
+    },
+    {
+      "id": "plot_58",
+      "plot_number": "58",
+      "size": "9.00X12.00",
+      "area": "108.00 SQMT (1163 SQFT)",
+      "polygon": [
+        [
+          13.0,
+          47.94
+        ],
+        [
+          21.0,
+          47.94
+        ],
+        [
+          21.0,
+          52.24
+        ],
+        [
+          13.0,
+          52.24
+        ]
+      ],
+      "status": "available",
+      "price": "Market Rate",
+      "notes": "West facing residential plot."
+    },
+    {
+      "id": "plot_70",
+      "plot_number": "70",
+      "size": "9.00X15.00",
+      "area": "135.00 SQMT (1453 SQFT)",
+      "polygon": [
+        [
+          5.0,
+          52.24
+        ],
+        [
+          13.0,
+          52.24
+        ],
+        [
+          13.0,
+          56.53
+        ],
+        [
+          5.0,
+          56.53
+        ]
+      ],
+      "status": "available",
+      "price": "Market Rate",
+      "notes": "East facing residential plot."
+    },
+    {
+      "id": "plot_59",
+      "plot_number": "59",
+      "size": "9.00X12.00",
+      "area": "108.00 SQMT (1163 SQFT)",
+      "polygon": [
+        [
+          13.0,
+          52.24
+        ],
+        [
+          21.0,
+          52.24
+        ],
+        [
+          21.0,
+          56.53
+        ],
+        [
+          13.0,
+          56.53
+        ]
+      ],
+      "status": "available",
+      "price": "Market Rate",
+      "notes": "West facing residential plot."
+    },
+    {
+      "id": "plot_69",
+      "plot_number": "69",
+      "size": "9.00X15.00",
+      "area": "135.00 SQMT (1453 SQFT)",
+      "polygon": [
+        [
+          5.0,
+          56.53
+        ],
+        [
+          13.0,
+          56.53
+        ],
+        [
+          13.0,
+          60.82
+        ],
+        [
+          5.0,
+          60.82
+        ]
+      ],
+      "status": "available",
+      "price": "Market Rate",
+      "notes": "East facing residential plot."
+    },
+    {
+      "id": "plot_60",
+      "plot_number": "60",
+      "size": "9.00X12.00",
+      "area": "108.00 SQMT (1163 SQFT)",
+      "polygon": [
+        [
+          13.0,
+          56.53
+        ],
+        [
+          21.0,
+          56.53
+        ],
+        [
+          21.0,
+          60.82
+        ],
+        [
+          13.0,
+          60.82
+        ]
+      ],
+      "status": "available",
+      "price": "Market Rate",
+      "notes": "West facing residential plot."
+    },
+    {
+      "id": "plot_68",
+      "plot_number": "68",
+      "size": "9.00X15.00",
+      "area": "135.00 SQMT (1453 SQFT)",
+      "polygon": [
+        [
+          5.0,
+          60.82
+        ],
+        [
+          13.0,
+          60.82
+        ],
+        [
+          13.0,
+          65.12
+        ],
+        [
+          5.0,
+          65.12
+        ]
+      ],
+      "status": "available",
+      "price": "Market Rate",
+      "notes": "East facing residential plot."
+    },
+    {
+      "id": "plot_61",
+      "plot_number": "61",
+      "size": "9.00X12.00",
+      "area": "108.00 SQMT (1163 SQFT)",
+      "polygon": [
+        [
+          13.0,
+          60.82
+        ],
+        [
+          21.0,
+          60.82
+        ],
+        [
+          21.0,
+          65.12
+        ],
+        [
+          13.0,
+          65.12
+        ]
+      ],
+      "status": "available",
+      "price": "Market Rate",
+      "notes": "West facing residential plot."
+    },
+    {
+      "id": "plot_67",
+      "plot_number": "67",
+      "size": "9.00X15.00",
+      "area": "135.00 SQMT (1453 SQFT)",
+      "polygon": [
+        [
+          5.0,
+          65.12
+        ],
+        [
+          13.0,
+          65.12
+        ],
+        [
+          13.0,
+          69.41
+        ],
+        [
+          5.0,
+          69.41
+        ]
+      ],
+      "status": "available",
+      "price": "Market Rate",
+      "notes": "East facing residential plot."
+    },
+    {
+      "id": "plot_62",
+      "plot_number": "62",
+      "size": "9.00X12.00",
+      "area": "108.00 SQMT (1163 SQFT)",
+      "polygon": [
+        [
+          13.0,
+          65.12
+        ],
+        [
+          21.0,
+          65.12
+        ],
+        [
+          21.0,
+          69.41
+        ],
+        [
+          13.0,
+          69.41
+        ]
+      ],
+      "status": "available",
+      "price": "Market Rate",
+      "notes": "West facing residential plot."
+    },
+    {
+      "id": "plot_66",
+      "plot_number": "66",
+      "size": "9.00X15.00",
+      "area": "135.00 SQMT (1453 SQFT)",
+      "polygon": [
+        [
+          5.0,
+          69.41
+        ],
+        [
+          13.0,
+          69.41
+        ],
+        [
+          13.0,
+          73.71
+        ],
+        [
+          5.0,
+          73.71
+        ]
+      ],
+      "status": "available",
+      "price": "Market Rate",
+      "notes": "East facing residential plot."
+    },
+    {
+      "id": "plot_63",
+      "plot_number": "63",
+      "size": "9.00X12.00",
+      "area": "108.00 SQMT (1163 SQFT)",
+      "polygon": [
+        [
+          13.0,
+          69.41
+        ],
+        [
+          21.0,
+          69.41
+        ],
+        [
+          21.0,
+          73.71
+        ],
+        [
+          13.0,
+          73.71
+        ]
+      ],
+      "status": "available",
+      "price": "Market Rate",
+      "notes": "West facing residential plot."
+    },
+    {
+      "id": "plot_65",
+      "plot_number": "65",
+      "size": "1/2X(12.76+11.64)X15.00",
+      "area": "183.00 SQMT (1887 SQFT)",
+      "polygon": [
+        [
+          5.0,
+          73.71
+        ],
+        [
+          13.0,
+          73.71
+        ],
+        [
+          13.0,
+          78.0
+        ],
+        [
+          5.0,
+          78.0
+        ]
+      ],
+      "status": "available",
+      "price": "Market Rate",
+      "notes": "East facing residential plot."
+    },
+    {
+      "id": "plot_64",
+      "plot_number": "64",
+      "size": "1/2X(13.66+12.76)X12.00",
+      "area": "158.52 SQMT (1623 SQFT)",
+      "polygon": [
+        [
+          13.0,
+          73.71
+        ],
+        [
+          21.0,
+          73.71
+        ],
+        [
+          21.0,
+          78.0
+        ],
+        [
+          13.0,
+          78.0
+        ]
+      ],
+      "status": "available",
+      "price": "Market Rate",
+      "notes": "West facing residential plot."
+    },
+    {
+      "id": "plot_9",
+      "plot_number": "9",
+      "size": "1/2X(15.88+16.56)X9.14",
+      "area": "148.25 SQMT (1596 SQFT)",
+      "polygon": [
+        [
+          5.0,
+          85.0
+        ],
+        [
+          10.0,
+          85.0
+        ],
+        [
+          10.0,
+          90.0
+        ],
+        [
+          5.0,
+          90.0
+        ]
+      ],
+      "status": "available",
+      "price": "Market Rate",
+      "notes": "Road facing premium plot."
+    },
+    {
+      "id": "plot_10",
+      "plot_number": "10",
+      "size": "1/2X(16.56+17.25)X9.14",
+      "area": "154.51 SQMT (1580 SQFT)",
+      "polygon": [
+        [
+          10.0,
+          85.0
+        ],
+        [
+          15.0,
+          85.0
+        ],
+        [
+          15.0,
+          90.0
+        ],
+        [
+          10.0,
+          90.0
+        ]
+      ],
+      "status": "available",
+      "price": "Market Rate",
+      "notes": "Road facing premium plot."
+    },
+    {
+      "id": "plot_11",
+      "plot_number": "11",
+      "size": "9.14X15.24",
+      "area": "139.29 SQMT (1500 SQFT)",
+      "polygon": [
+        [
+          15.0,
+          85.0
+        ],
+        [
+          20.0,
+          85.0
+        ],
+        [
+          20.0,
+          90.0
+        ],
+        [
+          15.0,
+          90.0
+        ]
+      ],
+      "status": "available",
+      "price": "Market Rate",
+      "notes": "Road facing premium plot."
+    },
+    {
+      "id": "plot_12",
+      "plot_number": "12",
+      "size": "9.14X15.24",
+      "area": "139.29 SQMT (1500 SQFT)",
+      "polygon": [
+        [
+          20.0,
+          85.0
+        ],
+        [
+          25.0,
+          85.0
+        ],
+        [
+          25.0,
+          90.0
+        ],
+        [
+          20.0,
+          90.0
+        ]
+      ],
+      "status": "available",
+      "price": "Market Rate",
+      "notes": "Road facing premium plot."
+    },
+    {
+      "id": "plot_13",
+      "plot_number": "13",
+      "size": "9.14X15.24",
+      "area": "139.29 SQMT (1500 SQFT)",
+      "polygon": [
+        [
+          25.0,
+          85.0
+        ],
+        [
+          30.0,
+          85.0
+        ],
+        [
+          30.0,
+          90.0
+        ],
+        [
+          25.0,
+          90.0
+        ]
+      ],
+      "status": "available",
+      "price": "Market Rate",
+      "notes": "Road facing premium plot."
+    },
+    {
+      "id": "plot_14",
+      "plot_number": "14",
+      "size": "9.14X15.24",
+      "area": "139.29 SQMT (1500 SQFT)",
+      "polygon": [
+        [
+          30.0,
+          85.0
+        ],
+        [
+          35.0,
+          85.0
+        ],
+        [
+          35.0,
+          90.0
+        ],
+        [
+          30.0,
+          90.0
+        ]
+      ],
+      "status": "available",
+      "price": "Market Rate",
+      "notes": "Road facing premium plot."
+    },
+    {
+      "id": "plot_15",
+      "plot_number": "15",
+      "size": "9.14X15.24",
+      "area": "139.29 SQMT (1500 SQFT)",
+      "polygon": [
+        [
+          35.0,
+          85.0
+        ],
+        [
+          40.0,
+          85.0
+        ],
+        [
+          40.0,
+          90.0
+        ],
+        [
+          35.0,
+          90.0
+        ]
+      ],
+      "status": "available",
+      "price": "Market Rate",
+      "notes": "Road facing premium plot."
+    },
+    {
+      "id": "plot_16",
+      "plot_number": "16",
+      "size": "9.14X15.24",
+      "area": "139.29 SQMT (1500 SQFT)",
+      "polygon": [
+        [
+          40.0,
+          85.0
+        ],
+        [
+          45.0,
+          85.0
+        ],
+        [
+          45.0,
+          90.0
+        ],
+        [
+          40.0,
+          90.0
+        ]
+      ],
+      "status": "available",
+      "price": "Market Rate",
+      "notes": "Road facing premium plot."
+    },
+    {
+      "id": "plot_17",
+      "plot_number": "17",
+      "size": "1/2X(10.28+9.14)X15.24",
+      "area": "147.98 SQMT (1593 SQFT)",
+      "polygon": [
+        [
+          45.0,
+          85.0
+        ],
+        [
+          50.0,
+          85.0
+        ],
+        [
+          50.0,
+          90.0
+        ],
+        [
+          45.0,
+          90.0
+        ]
+      ],
+      "status": "available",
+      "price": "Market Rate",
+      "notes": "Road facing premium plot."
+    },
+    {
+      "id": "plot_8",
+      "plot_number": "8",
+      "size": "1/2X(14.74+15.88)X15.24",
+      "area": "233.32 SQMT (2408 SQFT)",
+      "polygon": [
+        [
+          5.0,
+          90.0
+        ],
+        [
+          10.0,
+          90.0
+        ],
+        [
+          10.0,
+          95.0
+        ],
+        [
+          5.0,
+          95.0
+        ]
+      ],
+      "status": "available",
+      "price": "Market Rate",
+      "notes": "Road facing premium corner plot."
+    },
+    {
+      "id": "plot_7",
+      "plot_number": "7",
+      "size": "9.14X18.28",
+      "area": "167.08 SQMT (1800 SQFT)",
+      "polygon": [
+        [
+          10.0,
+          90.0
+        ],
+        [
+          15.0,
+          90.0
+        ],
+        [
+          15.0,
+          95.0
+        ],
+        [
+          10.0,
+          95.0
+        ]
+      ],
+      "status": "available",
+      "price": "Market Rate",
+      "notes": "Road facing premium corner plot."
+    },
+    {
+      "id": "plot_6",
+      "plot_number": "6",
+      "size": "9.14X18.28",
+      "area": "167.08 SQMT (1800 SQFT)",
+      "polygon": [
+        [
+          15.0,
+          90.0
+        ],
+        [
+          20.0,
+          90.0
+        ],
+        [
+          20.0,
+          95.0
+        ],
+        [
+          15.0,
+          95.0
+        ]
+      ],
+      "status": "available",
+      "price": "Market Rate",
+      "notes": "Road facing premium corner plot."
+    },
+    {
+      "id": "plot_5",
+      "plot_number": "5",
+      "size": "9.14X18.28",
+      "area": "167.08 SQMT (1800 SQFT)",
+      "polygon": [
+        [
+          20.0,
+          90.0
+        ],
+        [
+          25.0,
+          90.0
+        ],
+        [
+          25.0,
+          95.0
+        ],
+        [
+          20.0,
+          95.0
+        ]
+      ],
+      "status": "available",
+      "price": "Market Rate",
+      "notes": "Road facing premium corner plot."
+    },
+    {
+      "id": "plot_4",
+      "plot_number": "4",
+      "size": "9.14X18.28",
+      "area": "167.08 SQMT (1800 SQFT)",
+      "polygon": [
+        [
+          25.0,
+          90.0
+        ],
+        [
+          30.0,
+          90.0
+        ],
+        [
+          30.0,
+          95.0
+        ],
+        [
+          25.0,
+          95.0
+        ]
+      ],
+      "status": "available",
+      "price": "Market Rate",
+      "notes": "Road facing premium corner plot."
+    },
+    {
+      "id": "plot_3",
+      "plot_number": "3",
+      "size": "9.14X18.28",
+      "area": "167.08 SQMT (1800 SQFT)",
+      "polygon": [
+        [
+          30.0,
+          90.0
+        ],
+        [
+          35.0,
+          90.0
+        ],
+        [
+          35.0,
+          95.0
+        ],
+        [
+          30.0,
+          95.0
+        ]
+      ],
+      "status": "available",
+      "price": "Market Rate",
+      "notes": "Road facing premium corner plot."
+    },
+    {
+      "id": "plot_2",
+      "plot_number": "2",
+      "size": "9.14X18.28",
+      "area": "167.08 SQMT (1800 SQFT)",
+      "polygon": [
+        [
+          35.0,
+          90.0
+        ],
+        [
+          40.0,
+          90.0
+        ],
+        [
+          40.0,
+          95.0
+        ],
+        [
+          35.0,
+          95.0
+        ]
+      ],
+      "status": "available",
+      "price": "Market Rate",
+      "notes": "Road facing premium corner plot."
+    },
+    {
+      "id": "plot_1",
+      "plot_number": "1",
+      "size": "1/2X(11.65+10.28)X18.28",
+      "area": "200.44 SQMT (2158 SQFT)",
+      "polygon": [
+        [
+          40.0,
+          90.0
+        ],
+        [
+          45.0,
+          90.0
+        ],
+        [
+          45.0,
+          95.0
+        ],
+        [
+          40.0,
+          95.0
+        ]
+      ],
+      "status": "available",
+      "price": "Market Rate",
+      "notes": "Road facing premium corner plot."
+    },
+    {
+      "id": "plot_open_space",
+      "plot_number": "Open Space",
+      "size": "N/A",
+      "area": "1600.20 SQMT",
+      "polygon": [
+        [
+          25.0,
+          5.0
+        ],
+        [
+          42.0,
+          5.0
+        ],
+        [
+          42.0,
+          20.0
+        ],
+        [
+          25.0,
+          20.0
+        ]
+      ],
+      "status": "reserved",
+      "price": "Common Area",
+      "notes": "Open space / children play park."
+    },
+    {
+      "id": "plot_amenity_space",
+      "plot_number": "Amenity Space",
+      "size": "N/A",
+      "area": "1600.20 SQMT",
+      "polygon": [
+        [
+          25.0,
+          20.0
+        ],
+        [
+          42.0,
+          20.0
+        ],
+        [
+          42.0,
+          35.0
+        ],
+        [
+          25.0,
+          35.0
+        ]
+      ],
+      "status": "reserved",
+      "price": "Common Area",
+      "notes": "Amenity space."
+    },
+    {
+      "id": "plot_47",
+      "plot_number": "47",
+      "size": "8.00X12.00",
+      "area": "96.00 SQMT (1033 SQFT)",
+      "polygon": [
+        [
+          25.0,
+          35.0
+        ],
+        [
+          33.0,
+          35.0
+        ],
+        [
+          33.0,
+          39.3
+        ],
+        [
+          25.0,
+          39.3
+        ]
+      ],
+      "status": "available",
+      "price": "Market Rate",
+      "notes": "Premium inner sector plot."
+    },
+    {
+      "id": "plot_28",
+      "plot_number": "28",
+      "size": "8.00X12.00",
+      "area": "96.00 SQMT (1033 SQFT)",
+      "polygon": [
+        [
+          37.0,
+          35.0
+        ],
+        [
+          45.0,
+          35.0
+        ],
+        [
+          45.0,
+          39.3
+        ],
+        [
+          37.0,
+          39.3
+        ]
+      ],
+      "status": "available",
+      "price": "Market Rate",
+      "notes": "Premium inner sector plot."
+    },
+    {
+      "id": "plot_27",
+      "plot_number": "27",
+      "size": "8.00X12.00",
+      "area": "96.00 SQMT (1033 SQFT)",
+      "polygon": [
+        [
+          45.0,
+          35.0
+        ],
+        [
+          53.0,
+          35.0
+        ],
+        [
+          53.0,
+          39.3
+        ],
+        [
+          45.0,
+          39.3
+        ]
+      ],
+      "status": "available",
+      "price": "Market Rate",
+      "notes": "Outer border sector plot."
+    },
+    {
+      "id": "plot_46",
+      "plot_number": "46",
+      "size": "8.00X12.00",
+      "area": "96.00 SQMT (1033 SQFT)",
+      "polygon": [
+        [
+          25.0,
+          39.3
+        ],
+        [
+          33.0,
+          39.3
+        ],
+        [
+          33.0,
+          43.6
+        ],
+        [
+          25.0,
+          43.6
+        ]
+      ],
+      "status": "available",
+      "price": "Market Rate",
+      "notes": "Premium inner sector plot."
+    },
+    {
+      "id": "plot_29",
+      "plot_number": "29",
+      "size": "8.00X12.00",
+      "area": "96.00 SQMT (1033 SQFT)",
+      "polygon": [
+        [
+          37.0,
+          39.3
+        ],
+        [
+          45.0,
+          39.3
+        ],
+        [
+          45.0,
+          43.6
+        ],
+        [
+          37.0,
+          43.6
+        ]
+      ],
+      "status": "available",
+      "price": "Market Rate",
+      "notes": "Premium inner sector plot."
+    },
+    {
+      "id": "plot_26",
+      "plot_number": "26",
+      "size": "8.00X12.00",
+      "area": "96.00 SQMT (1033 SQFT)",
+      "polygon": [
+        [
+          45.0,
+          39.3
+        ],
+        [
+          53.0,
+          39.3
+        ],
+        [
+          53.0,
+          43.6
+        ],
+        [
+          45.0,
+          43.6
+        ]
+      ],
+      "status": "available",
+      "price": "Market Rate",
+      "notes": "Outer border sector plot."
+    },
+    {
+      "id": "plot_45",
+      "plot_number": "45",
+      "size": "8.00X12.00",
+      "area": "96.00 SQMT (1033 SQFT)",
+      "polygon": [
+        [
+          25.0,
+          43.6
+        ],
+        [
+          33.0,
+          43.6
+        ],
+        [
+          33.0,
+          47.9
+        ],
+        [
+          25.0,
+          47.9
+        ]
+      ],
+      "status": "available",
+      "price": "Market Rate",
+      "notes": "Premium inner sector plot."
+    },
+    {
+      "id": "plot_30",
+      "plot_number": "30",
+      "size": "8.00X12.00",
+      "area": "96.00 SQMT (1033 SQFT)",
+      "polygon": [
+        [
+          37.0,
+          43.6
+        ],
+        [
+          45.0,
+          43.6
+        ],
+        [
+          45.0,
+          47.9
+        ],
+        [
+          37.0,
+          47.9
+        ]
+      ],
+      "status": "available",
+      "price": "Market Rate",
+      "notes": "Premium inner sector plot."
+    },
+    {
+      "id": "plot_25",
+      "plot_number": "25",
+      "size": "8.00X12.00",
+      "area": "96.00 SQMT (1033 SQFT)",
+      "polygon": [
+        [
+          45.0,
+          43.6
+        ],
+        [
+          53.0,
+          43.6
+        ],
+        [
+          53.0,
+          47.9
+        ],
+        [
+          45.0,
+          47.9
+        ]
+      ],
+      "status": "available",
+      "price": "Market Rate",
+      "notes": "Outer border sector plot."
+    },
+    {
+      "id": "plot_44",
+      "plot_number": "44",
+      "size": "8.00X12.00",
+      "area": "96.00 SQMT (1033 SQFT)",
+      "polygon": [
+        [
+          25.0,
+          47.9
+        ],
+        [
+          33.0,
+          47.9
+        ],
+        [
+          33.0,
+          52.2
+        ],
+        [
+          25.0,
+          52.2
+        ]
+      ],
+      "status": "available",
+      "price": "Market Rate",
+      "notes": "Premium inner sector plot."
+    },
+    {
+      "id": "plot_31",
+      "plot_number": "31",
+      "size": "8.00X12.00",
+      "area": "96.00 SQMT (1033 SQFT)",
+      "polygon": [
+        [
+          37.0,
+          47.9
+        ],
+        [
+          45.0,
+          47.9
+        ],
+        [
+          45.0,
+          52.2
+        ],
+        [
+          37.0,
+          52.2
+        ]
+      ],
+      "status": "available",
+      "price": "Market Rate",
+      "notes": "Premium inner sector plot."
+    },
+    {
+      "id": "plot_24",
+      "plot_number": "24",
+      "size": "8.00X12.00",
+      "area": "96.00 SQMT (1033 SQFT)",
+      "polygon": [
+        [
+          45.0,
+          47.9
+        ],
+        [
+          53.0,
+          47.9
+        ],
+        [
+          53.0,
+          52.2
+        ],
+        [
+          45.0,
+          52.2
+        ]
+      ],
+      "status": "available",
+      "price": "Market Rate",
+      "notes": "Outer border sector plot."
+    },
+    {
+      "id": "plot_43",
+      "plot_number": "43",
+      "size": "8.00X12.00",
+      "area": "96.00 SQMT (1033 SQFT)",
+      "polygon": [
+        [
+          25.0,
+          52.2
+        ],
+        [
+          33.0,
+          52.2
+        ],
+        [
+          33.0,
+          56.5
+        ],
+        [
+          25.0,
+          56.5
+        ]
+      ],
+      "status": "available",
+      "price": "Market Rate",
+      "notes": "Premium inner sector plot."
+    },
+    {
+      "id": "plot_32",
+      "plot_number": "32",
+      "size": "8.00X12.00",
+      "area": "96.00 SQMT (1033 SQFT)",
+      "polygon": [
+        [
+          37.0,
+          52.2
+        ],
+        [
+          45.0,
+          52.2
+        ],
+        [
+          45.0,
+          56.5
+        ],
+        [
+          37.0,
+          56.5
+        ]
+      ],
+      "status": "available",
+      "price": "Market Rate",
+      "notes": "Premium inner sector plot."
+    },
+    {
+      "id": "plot_23",
+      "plot_number": "23",
+      "size": "8.00X12.00",
+      "area": "96.00 SQMT (1033 SQFT)",
+      "polygon": [
+        [
+          45.0,
+          52.2
+        ],
+        [
+          53.0,
+          52.2
+        ],
+        [
+          53.0,
+          56.5
+        ],
+        [
+          45.0,
+          56.5
+        ]
+      ],
+      "status": "available",
+      "price": "Market Rate",
+      "notes": "Outer border sector plot."
+    },
+    {
+      "id": "plot_42",
+      "plot_number": "42",
+      "size": "8.00X12.00",
+      "area": "96.00 SQMT (1033 SQFT)",
+      "polygon": [
+        [
+          25.0,
+          56.5
+        ],
+        [
+          33.0,
+          56.5
+        ],
+        [
+          33.0,
+          60.8
+        ],
+        [
+          25.0,
+          60.8
+        ]
+      ],
+      "status": "available",
+      "price": "Market Rate",
+      "notes": "Premium inner sector plot."
+    },
+    {
+      "id": "plot_33",
+      "plot_number": "33",
+      "size": "8.00X12.00",
+      "area": "96.00 SQMT (1033 SQFT)",
+      "polygon": [
+        [
+          37.0,
+          56.5
+        ],
+        [
+          45.0,
+          56.5
+        ],
+        [
+          45.0,
+          60.8
+        ],
+        [
+          37.0,
+          60.8
+        ]
+      ],
+      "status": "available",
+      "price": "Market Rate",
+      "notes": "Premium inner sector plot."
+    },
+    {
+      "id": "plot_22",
+      "plot_number": "22",
+      "size": "8.00X12.00",
+      "area": "96.00 SQMT (1033 SQFT)",
+      "polygon": [
+        [
+          45.0,
+          56.5
+        ],
+        [
+          53.0,
+          56.5
+        ],
+        [
+          53.0,
+          60.8
+        ],
+        [
+          45.0,
+          60.8
+        ]
+      ],
+      "status": "available",
+      "price": "Market Rate",
+      "notes": "Outer border sector plot."
+    },
+    {
+      "id": "plot_41",
+      "plot_number": "41",
+      "size": "8.00X12.00",
+      "area": "96.00 SQMT (1033 SQFT)",
+      "polygon": [
+        [
+          25.0,
+          60.8
+        ],
+        [
+          33.0,
+          60.8
+        ],
+        [
+          33.0,
+          65.1
+        ],
+        [
+          25.0,
+          65.1
+        ]
+      ],
+      "status": "available",
+      "price": "Market Rate",
+      "notes": "Premium inner sector plot."
+    },
+    {
+      "id": "plot_34",
+      "plot_number": "34",
+      "size": "8.00X12.00",
+      "area": "96.00 SQMT (1033 SQFT)",
+      "polygon": [
+        [
+          37.0,
+          60.8
+        ],
+        [
+          45.0,
+          60.8
+        ],
+        [
+          45.0,
+          65.1
+        ],
+        [
+          37.0,
+          65.1
+        ]
+      ],
+      "status": "available",
+      "price": "Market Rate",
+      "notes": "Premium inner sector plot."
+    },
+    {
+      "id": "plot_21",
+      "plot_number": "21",
+      "size": "8.00X12.00",
+      "area": "96.00 SQMT (1033 SQFT)",
+      "polygon": [
+        [
+          45.0,
+          60.8
+        ],
+        [
+          53.0,
+          60.8
+        ],
+        [
+          53.0,
+          65.1
+        ],
+        [
+          45.0,
+          65.1
+        ]
+      ],
+      "status": "available",
+      "price": "Market Rate",
+      "notes": "Outer border sector plot."
+    },
+    {
+      "id": "plot_40",
+      "plot_number": "40",
+      "size": "8.00X12.00",
+      "area": "96.00 SQMT (1033 SQFT)",
+      "polygon": [
+        [
+          25.0,
+          65.1
+        ],
+        [
+          33.0,
+          65.1
+        ],
+        [
+          33.0,
+          69.4
+        ],
+        [
+          25.0,
+          69.4
+        ]
+      ],
+      "status": "available",
+      "price": "Market Rate",
+      "notes": "Premium inner sector plot."
+    },
+    {
+      "id": "plot_35",
+      "plot_number": "35",
+      "size": "8.00X12.00",
+      "area": "96.00 SQMT (1033 SQFT)",
+      "polygon": [
+        [
+          37.0,
+          65.1
+        ],
+        [
+          45.0,
+          65.1
+        ],
+        [
+          45.0,
+          69.4
+        ],
+        [
+          37.0,
+          69.4
+        ]
+      ],
+      "status": "available",
+      "price": "Market Rate",
+      "notes": "Premium inner sector plot."
+    },
+    {
+      "id": "plot_20",
+      "plot_number": "20",
+      "size": "8.00X12.00",
+      "area": "96.00 SQMT (1033 SQFT)",
+      "polygon": [
+        [
+          45.0,
+          65.1
+        ],
+        [
+          53.0,
+          65.1
+        ],
+        [
+          53.0,
+          69.4
+        ],
+        [
+          45.0,
+          69.4
+        ]
+      ],
+      "status": "available",
+      "price": "Market Rate",
+      "notes": "Outer border sector plot."
+    },
+    {
+      "id": "plot_39",
+      "plot_number": "39",
+      "size": "8.00X12.00",
+      "area": "96.00 SQMT (1033 SQFT)",
+      "polygon": [
+        [
+          25.0,
+          69.4
+        ],
+        [
+          33.0,
+          69.4
+        ],
+        [
+          33.0,
+          73.7
+        ],
+        [
+          25.0,
+          73.7
+        ]
+      ],
+      "status": "available",
+      "price": "Market Rate",
+      "notes": "Premium inner sector plot."
+    },
+    {
+      "id": "plot_36",
+      "plot_number": "36",
+      "size": "8.00X12.00",
+      "area": "96.00 SQMT (1033 SQFT)",
+      "polygon": [
+        [
+          37.0,
+          69.4
+        ],
+        [
+          45.0,
+          69.4
+        ],
+        [
+          45.0,
+          73.7
+        ],
+        [
+          37.0,
+          73.7
+        ]
+      ],
+      "status": "available",
+      "price": "Market Rate",
+      "notes": "Premium inner sector plot."
+    },
+    {
+      "id": "plot_19",
+      "plot_number": "19",
+      "size": "8.00X12.00",
+      "area": "96.00 SQMT (1033 SQFT)",
+      "polygon": [
+        [
+          45.0,
+          69.4
+        ],
+        [
+          53.0,
+          69.4
+        ],
+        [
+          53.0,
+          73.7
+        ],
+        [
+          45.0,
+          73.7
+        ]
+      ],
+      "status": "available",
+      "price": "Market Rate",
+      "notes": "Outer border sector plot."
+    },
+    {
+      "id": "plot_38",
+      "plot_number": "38",
+      "size": "1/2X(13.40+12.50)X12.00",
+      "area": "155.40 SQMT (1590 SQFT)",
+      "polygon": [
+        [
+          25.0,
+          73.7
+        ],
+        [
+          33.0,
+          73.7
+        ],
+        [
+          33.0,
+          78.0
+        ],
+        [
+          25.0,
+          78.0
+        ]
+      ],
+      "status": "available",
+      "price": "Market Rate",
+      "notes": "Premium inner sector plot."
+    },
+    {
+      "id": "plot_37",
+      "plot_number": "37",
+      "size": "1/2X(14.29+13.40)X12.00",
+      "area": "166.14 SQMT (1705 SQFT)",
+      "polygon": [
+        [
+          37.0,
+          73.7
+        ],
+        [
+          45.0,
+          73.7
+        ],
+        [
+          45.0,
+          78.0
+        ],
+        [
+          37.0,
+          78.0
+        ]
+      ],
+      "status": "available",
+      "price": "Market Rate",
+      "notes": "Premium inner sector plot."
+    },
+    {
+      "id": "plot_18",
+      "plot_number": "18",
+      "size": "1/2X(14.97+15.87)X12.00",
+      "area": "185.04 SQMT (1909 SQFT)",
+      "polygon": [
+        [
+          45.0,
+          73.7
+        ],
+        [
+          53.0,
+          73.7
+        ],
+        [
+          53.0,
+          78.0
+        ],
+        [
+          45.0,
+          78.0
+        ]
+      ],
+      "status": "available",
+      "price": "Market Rate",
+      "notes": "Outer border sector plot."
+    }
+  ],
+  "decorations": [
+    {
+      "type": "road",
+      "label": "12.00 Mt. Wide Road",
+      "polygon": [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          5.0,
+          0.0
+        ],
+        [
+          5.0,
+          95.0
+        ],
+        [
+          0.0,
+          95.0
+        ]
+      ]
+    },
+    {
+      "type": "road",
+      "label": "9.00 Mt. Wide Road",
+      "polygon": [
+        [
+          21.0,
+          5.0
+        ],
+        [
+          25.0,
+          5.0
+        ],
+        [
+          25.0,
+          78.0
+        ],
+        [
+          21.0,
+          78.0
+        ]
+      ]
+    },
+    {
+      "type": "road",
+      "label": "9.00 Mt. Wide Road",
+      "polygon": [
+        [
+          33.0,
+          35.0
+        ],
+        [
+          37.0,
+          35.0
+        ],
+        [
+          37.0,
+          78.0
+        ],
+        [
+          33.0,
+          78.0
+        ]
+      ]
+    },
+    {
+      "type": "road",
+      "label": "9.00 Mt. Wide Road",
+      "polygon": [
+        [
+          5.0,
+          78.0
+        ],
+        [
+          100.0,
+          78.0
+        ],
+        [
+          100.0,
+          85.0
+        ],
+        [
+          5.0,
+          85.0
+        ]
+      ]
+    },
+    {
+      "type": "road",
+      "label": "15.00 Mt. Wide Road",
+      "polygon": [
+        [
+          0.0,
+          95.0
+        ],
+        [
+          100.0,
+          95.0
+        ],
+        [
+          100.0,
+          100.0
+        ],
+        [
+          0.0,
+          100.0
+        ]
+      ]
+    },
+    {
+      "type": "road",
+      "label": "80'00\" Chimur Neri Highway Road",
+      "polygon": [
+        [
+          53.0,
+          70.0
+        ],
+        [
+          100.0,
+          70.0
+        ],
+        [
+          100.0,
+          78.0
+        ],
+        [
+          53.0,
+          78.0
+        ]
+      ]
+    },
+    {
+      "type": "site_boundary",
+      "label": "Shasikiya Tantraniketan",
+      "polygon": [
+        [
+          56.0,
+          10.0
+        ],
+        [
+          70.0,
+          10.0
+        ],
+        [
+          70.0,
+          20.0
+        ],
+        [
+          56.0,
+          20.0
+        ]
+      ]
+    },
+    {
+      "type": "site_boundary",
+      "label": "ST Claret CBSE School",
+      "polygon": [
+        [
+          73.0,
+          10.0
+        ],
+        [
+          87.0,
+          10.0
+        ],
+        [
+          87.0,
+          20.0
+        ],
+        [
+          73.0,
+          20.0
+        ]
+      ]
+    }
+  ]
+}
