@@ -6,6 +6,10 @@ import sys
 # Ensure backend package can be imported
 sys.path.insert(0, os.path.abspath(os.path.dirname(__file__)))
 
+# Override DB_PATH for testing before importing the app or models
+import backend.models.database as db_module
+db_module.DB_PATH = os.path.join(db_module.UPLOAD_FOLDER, 'test_realestate.db')
+
 from backend.app import app
 from backend.models.database import init_db
 
@@ -16,6 +20,14 @@ class RealEstateAppTests(unittest.TestCase):
         self.client = app.test_client()
         # Initialize/seed test database schema
         init_db()
+
+    def tearDown(self):
+        # Clean up the test database file
+        if os.path.exists(db_module.DB_PATH):
+            try:
+                os.remove(db_module.DB_PATH)
+            except Exception as e:
+                print("Error removing test database file:", e)
 
     def test_get_config(self):
         response = self.client.get('/api/config')
