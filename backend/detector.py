@@ -203,7 +203,6 @@ def extract_plot_map(image_path, x, y, width, height, bg_rgb, tolerance,
         return Image.fromarray(rgba, 'RGBA')
     else:
         # Create an RGB image with solid white background
-        rgb_out = np.zeros_like(enhanced_rgb)
-        rgb_out[:] = 255  # white background
-        rgb_out[~bg_mask] = enhanced_rgb[~bg_mask]
+        rgb_out = enhanced_rgb.copy()
+        rgb_out[bg_mask] = 255  # set background pixels color to white
         return Image.fromarray(rgb_out, 'RGB')
