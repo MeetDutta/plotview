@@ -1522,6 +1522,384 @@ input[name="plotedit-format"]:checked + .format-option {
         transform: translateY(0);
         opacity: 1;
     }
+}/* Header Action Bar & Mobile Toggle Defaults */
+.header-nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+}
+#editor-nav-actions {
+    gap: 1rem;
+}
+.menu-toggle-btn {
+    display: none;
+}
+
+
+/* --- MOBILE RESPONSIVENESS (<= 768px) --- */
+@media (max-width: 768px) {
+    /* Mobile Menu Toggle Button */
+    .menu-toggle-btn {
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+        width: 38px;
+        height: 38px;
+        background-color: rgba(255, 255, 255, 0.03);
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        color: var(--text-color);
+        font-size: 1.1rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    
+    .menu-toggle-btn:hover {
+        background-color: rgba(255, 255, 255, 0.08);
+        border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    /* Collapsible Navigation Dropdown Menu */
+    .header-nav-actions {
+        display: none !important;
+    }
+    
+    .header-nav-actions.open {
+        display: flex !important;
+        flex-direction: column !important;
+        position: absolute !important;
+        top: calc(100% + 6px) !important;
+        right: 1rem !important;
+        background: rgba(15, 23, 42, 0.95) !important;
+        backdrop-filter: blur(24px) !important;
+        -webkit-backdrop-filter: blur(24px) !important;
+        border: 1px solid var(--border-color) !important;
+        border-radius: 14px !important;
+        padding: 1.25rem !important;
+        gap: 0.8rem !important;
+        width: 240px !important;
+        z-index: 150 !important;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.05) !important;
+        animation: menu-slide-down 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    
+    @keyframes menu-slide-down {
+        from {
+            opacity: 0;
+            transform: translateY(-8px) scale(0.97);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    }
+
+    /* Stretch buttons and components in dropdown */
+    .header-nav-actions > button,
+    .header-nav-actions > div,
+    .header-nav-actions > a {
+        width: 100% !important;
+        margin: 0 !important;
+    }
+    
+    /* Make custom select wrapper inside dropdown look good */
+    .header-nav-actions div {
+        justify-content: space-between !important;
+    }
+    
+    /* Make api-status container inside dropdown stack neatly */
+    .header-nav-actions .api-status {
+        justify-content: center !important;
+        padding: 6px 12px !important;
+        margin-top: 0.25rem !important;
+    }
+
+    /* Login & Signup Screens */
+    .login-card, #signup-card {
+        padding: 2rem 1.5rem !important;
+        margin: 1.5rem !important;
+        max-width: 90vw !important;
+    }
+    
+    .login-card h1, #signup-card h1 {
+        font-size: 1.6rem !important;
+    }
+    
+    /* Header (Hub & Editor Views) */
+    header {
+        padding: 0.6rem 1rem !important;
+        flex-wrap: nowrap !important;
+        position: relative !important;
+    }
+    
+    header .logo-section h1 {
+        font-size: 1.1rem !important;
+    }
+    
+    /* Hide profile tie text, theme selector icon/text label on mobile to save space */
+    header span#home-user-name, 
+    header span#editor-user-name {
+        display: none !important;
+    }
+    
+    header .theme-selector {
+        font-size: 0.7rem !important;
+    }
+
+    /* Catalog Page (Hub View) */
+    .home-hero {
+        padding: 1.5rem 1rem 0.5rem 1rem !important;
+    }
+    
+    .home-hero h2 {
+        font-size: 1.35rem !important;
+    }
+    
+    .home-hero p {
+        font-size: 0.785rem !important;
+    }
+    
+    .home-search-container {
+        padding: 0 1.5rem !important;
+    }
+    
+    .project-grid {
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)) !important;
+        gap: 1.25rem !important;
+        padding: 0 1.5rem 1.5rem 1.5rem !important;
+    }
+    
+    .project-card {
+        min-height: 320px !important;
+    }
+
+    /* Three-Column Editor Layout Overrides */
+    .app-container {
+        position: relative !important;
+        overflow: hidden !important;
+    }
+
+    /* Left and Right panels converted to sliding drawers overlaying the viewport */
+    .left-panel {
+        position: absolute !important;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        width: min(320px, 85vw) !important;
+        z-index: 100 !important;
+        height: 100% !important;
+        border-right: 1px solid var(--border-color) !important;
+        transform: translateX(-100%);
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        box-shadow: 10px 0 25px rgba(0, 0, 0, 0.5) !important;
+        background-color: var(--glass-bg) !important;
+        backdrop-filter: blur(20px) !important;
+        -webkit-backdrop-filter: blur(20px) !important;
+    }
+
+    .right-panel {
+        position: absolute !important;
+        top: 0;
+        bottom: 0;
+        right: 0;
+        width: min(350px, 85vw) !important;
+        z-index: 100 !important;
+        height: 100% !important;
+        border-left: 1px solid var(--border-color) !important;
+        transform: translateX(100%);
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        box-shadow: -10px 0 25px rgba(0, 0, 0, 0.5) !important;
+        background-color: var(--glass-bg) !important;
+        backdrop-filter: blur(20px) !important;
+        -webkit-backdrop-filter: blur(20px) !important;
+    }
+
+    /* Classes for showing drawers */
+    .left-panel.open {
+        transform: translateX(0) !important;
+    }
+    
+    .right-panel.open {
+        transform: translateX(0) !important;
+    }
+
+    /* Mobile Close Buttons inside drawers */
+    .panel-close-btn {
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        width: 100%;
+        padding: 0.6rem;
+        background-color: rgba(239, 68, 68, 0.1);
+        border: 1px solid rgba(239, 68, 68, 0.25);
+        color: #f87171;
+        border-radius: 8px;
+        font-size: 0.8rem;
+        font-weight: 700;
+        cursor: pointer;
+        margin-bottom: 1rem;
+        transition: all 0.2s ease;
+    }
+    
+    .panel-close-btn:hover {
+        background-color: rgba(239, 68, 68, 0.2);
+    }
+    
+    /* Layout correction inside directory right panel close button */
+    .right-panel .panel-close-btn {
+        margin: 0.75rem;
+        width: calc(100% - 1.5rem);
+        margin-bottom: 0.5rem;
+    }
+
+    /* Viewport adjustments */
+    .viewport-panel {
+        width: 100% !important;
+        height: 100% !important;
+    }
+
+    /* Legend placement and design for mobile */
+    .legend {
+        top: 10px !important;
+        left: 10px !important;
+        right: 10px !important;
+        padding: 0.5rem 0.75rem !important;
+        flex-direction: column !important;
+        gap: 6px !important;
+        border-radius: 8px !important;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3) !important;
+    }
+    
+    .legend-item {
+        font-size: 0.7rem !important;
+    }
+    
+    /* Zoom widget placement */
+    .zoom-widget {
+        bottom: 15px !important;
+        left: 15px !important;
+    }
+    
+    .zoom-btn {
+        width: 36px !important;
+        height: 36px !important;
+        font-size: 1rem !important;
+    }
+
+    /* Mobile Sidebar Toggles Floating Buttons */
+    .mobile-toggle-btn {
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        height: 40px;
+        padding: 0 14px;
+        background-color: var(--glass-bg);
+        border: 1px solid var(--glass-border);
+        border-radius: 20px;
+        color: #fff;
+        font-size: 0.8rem;
+        font-weight: 700;
+        cursor: pointer;
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        box-shadow: var(--panel-shadow);
+        z-index: 90;
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        position: absolute;
+    }
+    
+    .mobile-toggle-btn:hover {
+        background-color: var(--card-bg-hover);
+        transform: scale(1.03);
+    }
+    
+    .mobile-toggle-btn i {
+        font-size: 0.95rem;
+        color: var(--primary);
+    }
+
+    #mobile-left-toggle-btn {
+        bottom: 15px;
+        right: 125px;
+    }
+
+    #mobile-right-toggle-btn {
+        bottom: 15px;
+        right: 15px;
+    }
+
+    /* Mobile Dimming Backdrop Overlay */
+    #mobile-backdrop {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(3, 7, 18, 0.55);
+        backdrop-filter: blur(4px);
+        -webkit-backdrop-filter: blur(4px);
+        z-index: 95;
+        display: none;
+        transition: opacity 0.3s ease;
+    }
+    
+    #mobile-backdrop.active {
+        display: block !important;
+    }
+
+    /* Modals adjustments */
+    .modal-card {
+        padding: 1.5rem !important;
+        width: 92% !important;
+        max-width: 100% !important;
+    }
+
+    /* Plot Edit Crop Modal Responsive Stack */
+    #plotedit-modal .modal-card {
+        height: 95vh !important;
+        max-height: 95vh !important;
+        width: 95% !important;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    #plotedit-modal .modal-card > div:nth-child(2) {
+        flex-direction: column !important;
+        overflow-y: auto !important;
+    }
+    
+    /* Cropper Left Panel on mobile */
+    #plotedit-modal .modal-card > div:nth-child(2) > div:first-child {
+        flex: none !important;
+        height: 45vh !important;
+        border-right: none !important;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+    }
+    
+    /* Settings Right Panel on mobile */
+    #plotedit-modal .modal-card > div:nth-child(2) > div:last-child {
+        flex: 1 !important;
+        height: auto !important;
+        overflow-y: visible !important;
+    }
+    
+    /* Badge spacing inside plotedit crop header */
+    #plotedit-modal header span.badge {
+        display: none !important;
+    }
+    
+    /* Upscale selectors & presets wrap spacing */
+    .preset-chip {
+        padding: 3px 8px !important;
+        font-size: 0.65rem !important;
+    }
+    
+    .upscale-option {
+        padding: 4px !important;
+        font-size: 0.7rem !important;
+    }
 }
 
 

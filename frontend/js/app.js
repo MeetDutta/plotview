@@ -198,6 +198,21 @@ const statTotal = document.getElementById('stat-total');
 const statAvailable = document.getElementById('stat-available');
 const statSold = document.getElementById('stat-sold');
 
+// Mobile UI Toggles and Drawers
+const mobileLeftToggleBtn = document.getElementById('mobile-left-toggle-btn');
+const mobileRightToggleBtn = document.getElementById('mobile-right-toggle-btn');
+const mobileBackdrop = document.getElementById('mobile-backdrop');
+const leftPanelCloseBtn = document.getElementById('left-panel-close-btn');
+const rightPanelCloseBtn = document.getElementById('right-panel-close-btn');
+const leftPanel = document.querySelector('.left-panel');
+const rightPanel = document.querySelector('.right-panel');
+
+// Mobile Header Toggles and Dropdowns
+const homeMenuToggleBtn = document.getElementById('home-menu-toggle-btn');
+const editorMenuToggleBtn = document.getElementById('editor-menu-toggle-btn');
+const homeNavActions = document.getElementById('home-nav-actions');
+const editorNavActions = document.getElementById('editor-nav-actions');
+
 const loadingOverlay = document.getElementById('loading-overlay');
 const loadingText = document.getElementById('loading-text');
 const loadingSubtext = document.getElementById('loading-subtext');
@@ -833,6 +848,70 @@ function setupEventListeners() {
             cancelDrawing();
         }
     });
+
+    // Mobile responsiveness sidebar toggles and dismiss rules
+    if (mobileLeftToggleBtn) {
+        mobileLeftToggleBtn.addEventListener('click', () => {
+            leftPanel.classList.add('open');
+            rightPanel.classList.remove('open');
+            mobileBackdrop.classList.add('active');
+        });
+    }
+
+    if (mobileRightToggleBtn) {
+        mobileRightToggleBtn.addEventListener('click', () => {
+            rightPanel.classList.add('open');
+            leftPanel.classList.remove('open');
+            mobileBackdrop.classList.add('active');
+        });
+    }
+
+    const closeAllMobileSidebars = () => {
+        leftPanel.classList.remove('open');
+        rightPanel.classList.remove('open');
+        mobileBackdrop.classList.remove('active');
+    };
+
+    if (mobileBackdrop) {
+        mobileBackdrop.addEventListener('click', closeAllMobileSidebars);
+    }
+
+    if (leftPanelCloseBtn) {
+        leftPanelCloseBtn.addEventListener('click', closeAllMobileSidebars);
+    }
+
+    if (rightPanelCloseBtn) {
+        rightPanelCloseBtn.addEventListener('click', closeAllMobileSidebars);
+    }
+
+    // Mobile collapsible header menu toggles
+    if (homeMenuToggleBtn && homeNavActions) {
+        homeMenuToggleBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            homeNavActions.classList.toggle('open');
+        });
+    }
+
+    if (editorMenuToggleBtn && editorNavActions) {
+        editorMenuToggleBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            editorNavActions.classList.toggle('open');
+        });
+    }
+
+    // Close header menus when clicking outside
+    document.addEventListener('click', (e) => {
+        if (homeNavActions && homeNavActions.classList.contains('open')) {
+            if (!homeNavActions.contains(e.target) && !homeMenuToggleBtn.contains(e.target)) {
+                homeNavActions.classList.remove('open');
+            }
+        }
+        if (editorNavActions && editorNavActions.classList.contains('open')) {
+            if (!editorNavActions.contains(e.target) && !editorMenuToggleBtn.contains(e.target)) {
+                editorNavActions.classList.remove('open');
+            }
+        }
+    });
     
     // Call PlotEdit event listeners setup
     setupPlotEditEventListeners();
@@ -1372,6 +1451,11 @@ function selectPlot(id, zoomTo = false) {
     
     if (id) {
         switchTab('edit');
+        if (window.innerWidth <= 768 && rightPanel && mobileBackdrop) {
+            rightPanel.classList.add('open');
+            leftPanel.classList.remove('open');
+            mobileBackdrop.classList.add('active');
+        }
     }
     
     if (zoomTo && id) {
