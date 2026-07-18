@@ -1457,4 +1457,72 @@ input[name="plotedit-format"]:checked + .format-option {
     font-weight: 600;
 }
 
+/* Toast Notification System */
+#toast-container {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    z-index: 10000;
+    pointer-events: none;
+}
+
+.toast-notification {
+    pointer-events: auto;
+    background: rgba(15, 23, 42, 0.92);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: #ffffff;
+    padding: 12px 18px;
+    border-radius: 10px;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.5);
+    font-size: 0.8rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 300px;
+    max-width: 420px;
+    transform: translateY(20px);
+    opacity: 0;
+    animation: toast-fade-in 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.toast-notification.hide {
+    opacity: 0;
+    transform: translateX(40px) scale(0.95);
+}
+
+.toast-notification i {
+    font-size: 1.1rem;
+}
+
+.toast-notification.success {
+    border-left: 4px solid #ffffff;
+}
+
+.toast-notification.info {
+    border-left: 4px solid #94a3b8;
+}
+
+.toast-notification.warning {
+    border-left: 4px solid #f97316;
+}
+
+.toast-notification.danger {
+    border-left: 4px solid #ef4444;
+}
+
+@keyframes toast-fade-in {
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+
 

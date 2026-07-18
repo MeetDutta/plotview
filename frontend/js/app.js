@@ -2,6 +2,7 @@
 let plots = [];
 let decorations = [];
 let selectedPlotId = null;
+let lastRenderedPlotId = null;
 let currentImageFilename = null;
 let activeProjectId = null;
 let projects = [];
@@ -1514,9 +1515,12 @@ function handleDeletePlotSubmit() {
 function updatePropertiesPanel() {
     const plot = plots.find(p => p.id === selectedPlotId);
     if (plot) {
-        // Reset subform values
-        agentBuyerName.value = '';
-        agentTokenAmount.value = '';
+        // Reset subform values only if we switched to a different plot
+        if (selectedPlotId !== lastRenderedPlotId) {
+            agentBuyerName.value = '';
+            agentTokenAmount.value = '';
+            lastRenderedPlotId = selectedPlotId;
+        }
 
         // Populate read-only specifications sheet
         infoNumber.textContent = plot.plot_number || 'N/A';
@@ -1619,6 +1623,7 @@ function updatePropertiesPanel() {
         editPaneContent.style.display = 'flex';
         editPanePlaceholder.style.display = 'none';
     } else {
+        lastRenderedPlotId = null;
         if (printReceiptBtn) printReceiptBtn.style.display = 'none';
         editPaneContent.style.display = 'none';
         editPanePlaceholder.style.display = 'flex';
@@ -2995,6 +3000,37 @@ function printBookingReceipt(plot) {
     window.print();
 }
 
+// Show toast notification
+function showToast(message, type = 'info', duration = 5000) {
+    const container = document.getElementById('toast-container');
+    if (!container) return;
+
+    const toast = document.createElement('div');
+    toast.className = `toast-notification ${type}`;
+
+    let icon = 'fa-circle-info';
+    if (type === 'success') icon = 'fa-circle-check';
+    else if (type === 'warning') icon = 'fa-triangle-exclamation';
+    else if (type === 'danger') icon = 'fa-circle-xmark';
+
+    toast.innerHTML = `
+        <i class="fa-solid ${icon}"></i>
+        <div style="flex-grow: 1;">${message}</div>
+    `;
+
+    container.appendChild(toast);
+
+    // Auto remove
+    setTimeout(() => {
+        toast.classList.add('hide');
+        setTimeout(() => {
+            if (toast.parentNode === container) {
+                container.removeChild(toast);
+            }
+        }, 300);
+    }, duration);
+}
+
 // Server-Sent Events (SSE) dynamic update setup
 let updateEventSource = null;
 function setupRealTimeUpdates() {
@@ -3008,6 +3044,28 @@ function setupRealTimeUpdates() {
         try {
             const data = JSON.parse(e.data);
             if (data.project_id === activeProjectId) {
+                // Find status changes to show toast notifications
+                if (plots && plots.length > 0) {
+                    data.plots.forEach(newPlot => {
+                        const oldPlot = plots.find(p => p.id === newPlot.id);
+                        if (oldPlot && oldPlot.status !== newPlot.status) {
+                            const plotNum = newPlot.plot_number || 'N/A';
+                            if (newPlot.status === 'reserved') {
+                                const isMe = currentUser && (newPlot.reserved_by_agent === currentUser.id);
+                                if (!isMe) {
+                                    showToast(`Plot ${plotNum} has been reserved by ${newPlot.reserved_by_name || 'another agent'}.`, 'warning');
+                                } else {
+                                    showToast(`Plot ${plotNum} reserved successfully!`, 'success');
+                                }
+                            } else if (newPlot.status === 'sold') {
+                                showToast(`Plot ${plotNum} has been marked as SOLD under contract #${newPlot.contract_ref || 'N/A'}.`, 'danger');
+                            } else if (newPlot.status === 'available') {
+                                showToast(`Plot ${plotNum} is now AVAILABLE.`, 'info');
+                            }
+                        }
+                    });
+                }
+
                 // Prevent overrides if actively drawing or editing points
                 if (activeTool !== 'draw' && activeTool !== 'edit' && draggedNodeIndex === null) {
                     plots = data.plots;
