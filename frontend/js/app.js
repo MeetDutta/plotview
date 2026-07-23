@@ -2635,9 +2635,10 @@ function showEditorView(projectId) {
             activeProjectTitle.textContent = project.name;
             
             if (project.image_filename) {
-                mapImage.src = `/uploads/${project.image_filename}?t=${Date.now()}`;
+                const srcUrl = project.image_filename.startsWith('http') ? project.image_filename : `/uploads/${project.image_filename}?t=${Date.now()}`;
+                mapImage.src = srcUrl;
                 mapImage.style.display = 'block';
-                fileInfoName.textContent = project.image_filename;
+                fileInfoName.textContent = project.image_filename.split('/').pop();
                 fileInfoCard.style.display = 'block';
                 if (openPloteditBtn) openPloteditBtn.style.display = (currentUser && currentUser.role === 'admin') ? 'flex' : 'none';
                 
@@ -2825,7 +2826,7 @@ function renderProjectsGrid(filterText = '') {
         card.innerHTML = `
             <div class="project-card-image-wrapper">
                 ${p.image_filename ? `
-                    <img class="project-card-img" src="/uploads/${p.image_filename}" alt="${p.name}" loading="lazy">
+                    <img class="project-card-img" src="${p.image_filename.startsWith('http') ? p.image_filename : `/uploads/${p.image_filename}`}" alt="${p.name}" loading="lazy">
                 ` : `
                     <div class="project-card-image-wrapper no-image">
                         <i class="fa-solid fa-map-location-dot"></i>
@@ -3417,7 +3418,7 @@ function openPlotEditModal(filename) {
                 }
             });
         };
-        ploteditSourceImg.src = `/uploads/${filename}?t=${Date.now()}`;
+        ploteditSourceImg.src = filename.startsWith('http') ? filename : `/uploads/${filename}?t=${Date.now()}`;
     }
 }
 

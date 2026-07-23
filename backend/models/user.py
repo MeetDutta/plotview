@@ -14,7 +14,7 @@ def get_user_by_id(user_id):
 def get_user_by_username(username):
     conn = get_db()
     cursor = conn.cursor()
-    cursor.execute("SELECT * FROM users WHERE username = ? COLLATE NOCASE AND active = 1", (username,))
+    cursor.execute("SELECT * FROM users WHERE LOWER(username) = LOWER(?) AND active = 1", (username,))
     row = cursor.fetchone()
     conn.close()
     if row:
@@ -40,10 +40,10 @@ def count_admins():
 def check_username_exists(username):
     conn = get_db()
     cursor = conn.cursor()
-    cursor.execute("SELECT COUNT(*) as count FROM users WHERE username = ? COLLATE NOCASE", (username,))
+    cursor.execute("SELECT COUNT(*) as count FROM users WHERE LOWER(username) = LOWER(?)", (username,))
     u_count = cursor.fetchone()["count"]
     
-    cursor.execute("SELECT COUNT(*) as count FROM agent_requests WHERE username = ? COLLATE NOCASE AND status = 'pending'", (username,))
+    cursor.execute("SELECT COUNT(*) as count FROM agent_requests WHERE LOWER(username) = LOWER(?) AND status = 'pending'", (username,))
     r_count = cursor.fetchone()["count"]
     conn.close()
     return u_count > 0 or r_count > 0
@@ -51,7 +51,7 @@ def check_username_exists(username):
 def check_username_registered(username):
     conn = get_db()
     cursor = conn.cursor()
-    cursor.execute("SELECT COUNT(*) as count FROM users WHERE username = ? COLLATE NOCASE", (username,))
+    cursor.execute("SELECT COUNT(*) as count FROM users WHERE LOWER(username) = LOWER(?)", (username,))
     count = cursor.fetchone()["count"]
     conn.close()
     return count > 0

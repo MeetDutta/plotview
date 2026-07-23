@@ -2,19 +2,100 @@ import os
 import json
 import sqlite3
 import hashlib
+import psycopg2
+import psycopg2.extras
 
 # Locate database inside uploads folder at root workspace
 UPLOAD_FOLDER = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', 'uploads')
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 DB_PATH = os.path.join(UPLOAD_FOLDER, 'realestate.db')
 
+DATABASE_URL = os.environ.get("DATABASE_URL")
+
 def hash_password(password):
     return hashlib.sha256(password.encode('utf-8')).hexdigest()
 
+class PostgresCursorWrapper:
+    def __init__(self, cursor):
+        self._cursor = cursor
+
+    def execute(self, query, params=None):
+        # Translate SQLite-style '?' placeholders to PostgreSQL-style '%s'
+        translated_query = query.replace('?', '%s')
+        if params is not None:
+            self._cursor.execute(translated_query, params)
+        else:
+            self._cursor.execute(translated_query)
+        return self
+
+    def executemany(self, query, seq_of_params):
+        translated_query = query.replace('?', '%s')
+        self._cursor.executemany(translated_query, seq_of_params)
+        return self
+
+    def fetchone(self):
+        row = self._cursor.fetchone()
+        if row is not None:
+            return dict(row)
+        return None
+
+    def fetchall(self):
+        rows = self._cursor.fetchall()
+        return [dict(r) for r in rows]
+
+    @property
+    def rowcount(self):
+        return self._cursor.rowcount
+
+    def close(self):
+        self._cursor.close()
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.close()
+
+class PostgresConnectionWrapper:
+    def __init__(self, conn):
+        self._conn = conn
+
+    def cursor(self, *args, **kwargs):
+        # Use RealDictCursor to automatically get dict-like rows
+        pg_cursor = self._conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+        return PostgresCursorWrapper(pg_cursor)
+
+    def commit(self):
+        self._conn.commit()
+
+    def rollback(self):
+        self._conn.rollback()
+
+    def close(self):
+        self._conn.close()
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        if exc_type is not None:
+            self.rollback()
+        else:
+            self.commit()
+        self.close()
+
 def get_db():
-    conn = sqlite3.connect(DB_PATH)
-    conn.row_factory = sqlite3.Row
-    return conn
+    if DATABASE_URL:
+        url = DATABASE_URL
+        if url.startswith("postgres://"):
+            url = url.replace("postgres://", "postgresql://", 1)
+        conn = psycopg2.connect(url)
+        return PostgresConnectionWrapper(conn)
+    else:
+        conn = sqlite3.connect(DB_PATH)
+        conn.row_factory = sqlite3.Row
+        return conn
+
 
 def init_db():
     conn = get_db()

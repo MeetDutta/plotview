@@ -12,7 +12,9 @@ import google.generativeai as genai
 import uuid
 import io
 from backend.detector import detect_layout_bbox, extract_plot_map
+from backend.utils.storage import upload_file_to_storage, get_local_filepath, get_supabase_client
 import queue
+
 
 from backend.controllers.auth_controller import get_current_user
 from backend.models.user import get_all_users
@@ -458,8 +460,7 @@ def api_upload_project_image(project_id):
         
     ext = file.filename.split('.')[-1]
     filename = f"layout_{project_id}.{ext}"
-    filepath = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
-    file.save(filepath)
+    db_filename, public_url = upload_file_to_storage(file, filename)
     
     activity_log.append({
         "timestamp": datetime.now().isoformat(),
@@ -467,15 +468,15 @@ def api_upload_project_image(project_id):
         "username": current_user["username"],
         "plot_number": "Multiple / Layout",
         "action": "creation",
-        "details": f"New map image uploaded ({filename}) by Admin {current_user['name']}."
+        "details": f"New map image uploaded ({db_filename}) by Admin {current_user['name']}."
     })
     
-    save_project(project_id, json.loads(row["plots"]), json.loads(row["decorations"]), filename, activity_log)
+    save_project(project_id, json.loads(row["plots"]), json.loads(row["decorations"]), db_filename, activity_log)
     
     return jsonify({
         "success": True,
-        "filename": filename,
-        "url": f"/uploads/{filename}"
+        "filename": db_filename,
+        "url": public_url
     })
 
 @project_bp.route('/api/upload', methods=['POST'])
@@ -488,13 +489,19 @@ def upload_file():
         return jsonify({"error": "No file selected for uploading"}), 400
         
     filename = "uploaded_layout.jpg"
-    filepath = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
-    file.save(filepath)
+    db_filename, public_url = upload_file_to_storage(file, filename)
+    
+    if public_url.startswith("http"):
+        url = f"{public_url}?t={int(time.time())}"
+    else:
+        filepath = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
+        mtime = os.path.getmtime(filepath) if os.path.exists(filepath) else int(time.time())
+        url = f"{public_url}?t={mtime}"
     
     return jsonify({
         "success": True,
-        "filename": filename,
-        "url": f"/uploads/{filename}?t={os.path.getmtime(filepath)}"
+        "filename": db_filename,
+        "url": url
     })
 
 @project_bp.route('/api/projects/<project_id>/plots/<plot_id>/reserve', methods=['POST'])
@@ -675,7 +682,7 @@ def detect_cv():
         
     data = request.get_json() or {}
     filename = data.get('filename', 'uploaded_layout.jpg')
-    filepath = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
+    filepath = get_local_filepath(filename)
     
     # Parse dynamic CV parameters
     min_area_ratio = float(data.get('min_area_ratio', 0.0005))
@@ -975,7 +982,7 @@ def detect_ai():
     if not api_key:
         return jsonify({"error": "Gemini API Key is required for AI Mode. Please enter a key in the settings panel."}), 400
         
-    filepath = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
+    filepath = get_local_filepath(filename)
     if not os.path.exists(filepath):
         filepath = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', 'static', 'sample_layout.jpg')
         if not os.path.exists(filepath):
@@ -1555,7 +1562,7 @@ def api_plotedit_process(project_id):
     if not filename:
         return jsonify({'success': False, 'error': 'Missing filename parameter'}), 400
     
-    filepath = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
+    filepath = get_local_filepath(filename)
     if not os.path.exists(filepath):
         return jsonify({'success': False, 'error': 'Source file not found'}), 404
         
@@ -1683,21 +1690,22 @@ def api_plotedit_save(project_id):
         )
         
         dest_filename = f"layout_{project_id}.{output_format}"
-        dest_path = os.path.join(current_app.config['UPLOAD_FOLDER'], dest_filename)
-        
-        if output_format == 'png':
-            pil_img.save(dest_path, format='PNG')
-        else:
-            pil_img.save(dest_path, format='JPEG', quality=95)
-            
         raw_ext = filename.rsplit('.', 1)[-1].lower()
         raw_filename = f"raw_layout_{project_id}.{raw_ext}"
-        raw_dest_path = os.path.join(current_app.config['UPLOAD_FOLDER'], raw_filename)
         
-        if filepath != raw_dest_path:
-            import shutil
-            shutil.copy2(filepath, raw_dest_path)
-            
+        # Save optimized image in memory to upload
+        img_byte_arr = io.BytesIO()
+        if output_format == 'png':
+            pil_img.save(img_byte_arr, format='PNG')
+        else:
+            pil_img.save(img_byte_arr, format='JPEG', quality=95)
+        img_byte_arr.seek(0)
+        
+        db_filename, public_url = upload_file_to_storage(img_byte_arr.getvalue(), dest_filename)
+        
+        # Copy/upload raw image as well
+        db_raw_filename, public_raw_url = upload_file_to_storage(filepath, raw_filename)
+        
         if filename.startswith("temp_") and os.path.exists(filepath):
             try:
                 os.remove(filepath)
@@ -1710,15 +1718,15 @@ def api_plotedit_save(project_id):
             "username": current_user["username"],
             "plot_number": "Multiple / Layout",
             "action": "creation",
-            "details": f"Optimized map layout image generated and saved ({dest_filename}) by Admin {current_user['name']}."
+            "details": f"Optimized map layout image generated and saved ({db_filename}) by Admin {current_user['name']}."
         })
         
-        save_project(project_id, json.loads(row["plots"]), json.loads(row["decorations"]), dest_filename, activity_log)
+        save_project(project_id, json.loads(row["plots"]), json.loads(row["decorations"]), db_filename, activity_log)
         
         return jsonify({
             "success": True,
-            "filename": dest_filename,
-            "url": f"/uploads/{dest_filename}?t={int(time.time())}"
+            "filename": db_filename,
+            "url": f"{public_url}?t={int(time.time())}"
         })
         
     except Exception as e:
@@ -1736,19 +1744,34 @@ def api_plotedit_load_existing(project_id):
         return jsonify({"error": "Project not found"}), 404
         
     raw_filename = None
-    for ext in ['png', 'jpg', 'jpeg', 'webp']:
-        candidate = f"raw_layout_{project_id}.{ext}"
-        if os.path.exists(os.path.join(current_app.config['UPLOAD_FOLDER'], candidate)):
-            raw_filename = candidate
-            break
-            
+    main_img = project["image_filename"] or ""
+    if main_img.startswith("http"):
+        client = get_supabase_client()
+        if client:
+            from backend.utils.storage import SUPABASE_BUCKET
+            for ext in ['png', 'jpg', 'jpeg', 'webp']:
+                candidate = f"raw_layout_{project_id}.{ext}"
+                try:
+                    files = client.storage.from_(SUPABASE_BUCKET).list()
+                    if any(f['name'] == candidate for f in files):
+                        raw_filename = client.storage.from_(SUPABASE_BUCKET).get_public_url(candidate)
+                        break
+                except Exception as e:
+                    print("Error checking Supabase storage for raw layout:", e)
+    else:
+        for ext in ['png', 'jpg', 'jpeg', 'webp']:
+            candidate = f"raw_layout_{project_id}.{ext}"
+            if os.path.exists(os.path.join(current_app.config['UPLOAD_FOLDER'], candidate)):
+                raw_filename = candidate
+                break
+                
     if not raw_filename and project["image_filename"]:
         raw_filename = project["image_filename"]
         
     if not raw_filename:
         return jsonify({"success": False, "error": "No existing image to crop"}), 400
         
-    filepath = os.path.join(current_app.config['UPLOAD_FOLDER'], raw_filename)
+    filepath = get_local_filepath(raw_filename)
     try:
         detection_results = detect_layout_bbox(filepath)
         return jsonify({
